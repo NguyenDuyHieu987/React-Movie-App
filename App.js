@@ -29,6 +29,7 @@ import { AuthContext, AuthProvider } from './src/AuthProvider';
 import MainStackNavigator from './src/screens/MainStackNavigator/MainStackNavigator';
 import RootStackScreen from './src/screens/RootScreen/RootScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import WellcomeScreen from './src/screens/WellcomeScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -122,7 +123,7 @@ const App = ({ navigation }) => {
 
       if (userName == 'vaicut6941@gmail.com' && password == 'Pass') {
         try {
-          userToken = '123';
+          // userToken = '123';
           await AsyncStorage.setItem('userToken', userToken);
         } catch (e) {
           console.log(e);
@@ -179,6 +180,8 @@ const App = ({ navigation }) => {
                 }}
               /> */}
 
+
+
             <Stack.Screen
               name="home"
               component={MainStackNavigator}
@@ -205,7 +208,7 @@ const App = ({ navigation }) => {
                   backgroundColor: Colors.LIGHT_BLACK,
                 },
                 headerTintColor: Colors.WHITE,
-                headerTitleAlign: 'center',
+                headerTitleAlign: "center",
                 cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
               })}
             />
