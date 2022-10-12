@@ -199,29 +199,31 @@ const HomeScreen = ({ navigation }) => {
   }, [dataList || dataTrendingMoives]);
 
   useEffect(() => {
-    getMovieSeriesById(dataTrendingMoives?.id)
-      .then((tvResponed) => {
-        if (tvResponed?.data === null)
-          getMovieById(dataTrendingMoives?.id)
-            .then((movieResponed) => {
-              setIsEpisodes(false);
-            })
-            .catch((e) => {
-              if (axios.isCancel(e)) return;
-            });
-        else {
-          setIsEpisodes(true);
-        }
-      })
-      .catch((e) => {
-        if (axios.isCancel(e)) return;
-      });
+    if (dataTrendingMoives?.id !== undefined) {
+      getMovieSeriesById(dataTrendingMoives?.id)
+        .then((tvResponed) => {
+          if (tvResponed?.data === null)
+            getMovieById(dataTrendingMoives?.id)
+              .then((movieResponed) => {
+                setIsEpisodes(false);
+              })
+              .catch((e) => {
+                if (axios.isCancel(e)) return;
+              });
+          else {
+            setIsEpisodes(true);
+          }
+        })
+        .catch((e) => {
+          if (axios.isCancel(e)) return;
+        });
+    }
   }, [dataTrendingMoives?.id]);
 
   const GetDataTrending = () => {
     getTrending(1).then((movieRespone) => {
       setDataTrendingMoives(
-        movieRespone?.data?.results[Math.floor(Math.random() * 20)]
+        movieRespone?.data?.results[Math.floor(Math.random() * 20) + 1]
       )?.catch((e) => {
         if (axios.isCancel(e)) return;
       });
