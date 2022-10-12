@@ -22,7 +22,8 @@ const TMDB_HTTP_REQUEST = axios.create({
   },
 });
 
-const URL_API = 'http://192.168.249.6:3001';
+// const URL_API = 'http://192.168.249.6:3001';
+const URL_API = 'https://the-movie-node.onrender.com';
 
 // const getTrending = () =>
 //   axios.get(
