@@ -34,11 +34,14 @@ import {
   getMovieByCredit,
   getList,
   getMovieSeriesById,
+  removeItemList,
+  addItemList,
 } from '../../services/MovieService';
 import { APPEND_TO_RESPONSE } from '../../constants/Urls';
 import axios from 'axios';
 import Images from '../../constants/Images';
 import DetailMovie from './DetailMovie';
+import ContentLoader from 'react-content-loader/native';
 
 const { height, width } = Dimensions.get('window');
 
@@ -58,136 +61,139 @@ const MovieScreen = ({ movieId, route, navigation, item }) => {
   const [checkisInList, setCheckisInList] = useState('add');
   const [liked, setLiked] = useState(false);
   const [isCastSelected, setIsCastSelected] = useState(true);
-  var [pageRecommended, setPageRecommended] = useState(1);
-  var [pageSimiLar, setPageSimiLar] = useState(1);
+  const [pageRecommended, setPageRecommended] = useState(1);
+  const [pageSimiLar, setPageSimiLar] = useState(1);
   const [loadingRecommended, setLoadingRecommended] = useState(false);
   const [loadingSimilar, setLoadingSimilar] = useState(false);
   const [isEpisodes, setIsEpisodes] = useState(false);
 
   useEffect(() => {
     getData();
-  }, []);
+  }, [route.params.movieId]);
 
-  const getData = async () => {
-    // console.log(dataMovies);
-    await getMovieSeriesById(route.params.movieId)
-      .then((movieResponed) => {
-        setIsEpisodes(true);
-        setDataMovies(movieResponed?.data);
+  const getData = () => {
+    getMovieSeriesById(route.params.movieId)
+      .then((tvResponed) => {
+        if (tvResponed?.data === null)
+          getMovieById(route.params.movieId)
+            .then((movieResponed) => {
+              setIsEpisodes(false);
+              setDataMovies(movieResponed?.data);
+            })
+            .catch((e) => {
+              if (axios.isCancel(e)) return;
+            });
+        else {
+          setIsEpisodes(true);
+          setDataMovies(tvResponed?.data);
+        }
       })
       .catch((e) => {
-        getMovieById(route.params.movieId, `videos`)
-          .then((movieResponed) => {
-            setIsEpisodes(false);
-            setDataMovies(movieResponed?.data);
-          })
-          .catch((e) => {
-            if (axios.isCancel(e)) return;
-          });
         if (axios.isCancel(e)) return;
       });
 
-    // !dataMoviesTV
-    //   ? getMovieById(route.params.movieId, `videos`)
-    //       .then((movieResponed) => {
-    //         setIsEpisodes(false);
-    //         setDataMovies(movieResponed?.data);
-    //       })
-    //       .catch((e) => {
-    //         if (axios.isCancel(e)) return;
-    //       })
-    //   : setDataMovies(dataMoviesTV);
-
-    // await getMovieById(route.params.movieId, `videos`)
-    // .then((movieRespone) => {
-    //   setDataMovies(movieRespone.data);
-    // })
-    // .catch((e) => {
-    //   if (axios.isCancel(e)) return;
-    // });
-
-    await getList()
+    getList()
       .then((movieRespone) => {
-        setDataList(movieRespone.data.items);
+        setDataList(movieRespone?.data.items);
       })
       .catch((e) => {
         if (axios.isCancel(e)) return;
       });
 
-    await getMovieByCredit(
-      isEpisodes ? 'tv' : 'movie',
-      route.params.movieId,
-      `credits`
-    )
+    getMovieByCredit(isEpisodes ? 'tv' : 'movie', route.params.movieId)
       .then((movieRespone) => {
-        setDataCredits(movieRespone.data);
+        setDataCredits(movieRespone?.data);
       })
       .catch((e) => {
         if (axios.isCancel(e)) return;
       });
 
-    await getMovieByRecommend(
-      isEpisodes ? 'tv' : 'movie',
-      route.params.movieId,
-      `recommendations`,
-      pageRecommended
-    )
+    // getMovieByRecommend(
+    //   isEpisodes ? 'tv' : 'movie',
+    //   route.params.movieId,
+    //   `recommendations`,
+    //   pageRecommended
+    // )
+    //   .then((movieRespone) => {
+    //     setDataRecommend(movieRespone.data.recommendations.results);
+    //   })
+    //   .catch((e) => {
+    //     if (axios.isCancel(e)) return;
+    //   });
+
+    getMovieByRecommend(pageRecommended)
       .then((movieRespone) => {
-        setDataRecommend(movieRespone.data.recommendations.results);
+        setDataRecommend(movieRespone.data.results);
       })
       .catch((e) => {
         if (axios.isCancel(e)) return;
       });
+  };
 
-    await getMovieBySimilar(
-      isEpisodes ? 'tv' : 'movie',
-      route.params.movieId,
-      `similar`,
-      pageSimiLar
-    )
-      .then((movieRespone) => {
-        setDataSimiLar(movieRespone.data.similar.results);
-      })
-      .catch((e) => {
-        if (axios.isCancel(e)) return;
-      });
-
+  useEffect(() => {
     dataList.map((item) => {
       if (item?.id === route.params.movieId) {
         setCheckisInList('checkmark');
       }
     });
-  };
+  }, [dataList || dataMovies]);
 
-  const handleEndReachedRecommendations = useCallback(async () => {
-    setPageRecommended(++pageRecommended);
+  useEffect(() => {
+    //  getMovieBySimilar(
+    //   isEpisodes ? 'tv' : 'movie',
+    //   route.params.movieId,
+    //   `similar`,
+    //   pageSimiLar
+    // )
+    //   .then((movieRespone) => {
+    //     setDataSimiLar(movieRespone.data.similar.results);
+    //   })
+    //   .catch((e) => {
+    //     if (axios.isCancel(e)) return;
+    //   });
+    if (dataMovies?.genres !== undefined) {
+      getMovieBySimilar(
+        isEpisodes ? 'tv' : 'movie',
+        dataMovies.genres[0],
+        pageSimiLar
+      )
+        .then((movieResponed) => {
+          setDataSimiLar(movieResponed?.data.results);
+        })
+        .catch((e) => {
+          if (axios.isCancel(e)) return;
+        });
+    }
+  }, [dataMovies.genres]);
+
+  const handleEndReachedRecommendations = useCallback(() => {
+    setPageRecommended(pageRecommended + 1);
     setLoadingRecommended(true);
-    await getMovieByRecommend(
-      route.params.movieId,
-      `recommendations`,
-      pageRecommended
-    )
+    getMovieByRecommend(pageRecommended)
       .then((movieRespone) => {
-        setDataRecommend(
-          dataRecommend.concat(movieRespone.data.recommendations.results)
-        );
+        setDataRecommend(dataRecommend.concat(movieRespone.data.results));
       })
       .catch((e) => {
         if (axios.isCancel(e)) return;
       });
   }, [dataRecommend]);
 
-  const handleEndReachedSimiLar = useCallback(async () => {
-    setPageSimiLar(++pageSimiLar);
+  const handleEndReachedSimiLar = useCallback(() => {
+    setPageSimiLar(pageSimiLar + 1);
     setLoadingSimilar(true);
-
-    await getMovieBySimilar(route.params.movieId, `similar`, pageSimiLar)
-      .then((movieRespone) => {
-        setDataSimiLar(dataSimiLar.concat(movieRespone.data.similar.results));
-      })
-      .catch((e) => {
-        if (axios.isCancel(e)) return;
-      });
+    if (dataMovies?.genres !== undefined) {
+      getMovieBySimilar(
+        isEpisodes ? 'tv' : 'movie',
+        dataMovies.genres[0],
+        pageSimiLar
+      )
+        .then((movieRespone) => {
+          setDataSimiLar(dataSimiLar.concat(movieRespone.data.results));
+        })
+        .catch((e) => {
+          if (axios.isCancel(e)) return;
+        });
+    }
   }, [dataSimiLar]);
 
   return (
@@ -301,20 +307,27 @@ const MovieScreen = ({ movieId, route, navigation, item }) => {
               activeOpacity={0.5}
               onPress={() => {
                 if (checkisInList == 'add') {
-                  axios.post(
-                    'https://api.themoviedb.org/3/list/8215569/add_item?api_key=fe1b70d9265fdb22caa86dca918116eb&session_id=5ae3c9dd2c824276ba202e5f77298064ccc7085d',
-                    {
-                      media_id: route.params.movieId,
-                    }
-                  );
+                  // axios.post(
+                  //   'https://api.themoviedb.org/3/list/8215569/add_item?api_key=fe1b70d9265fdb22caa86dca918116eb&session_id=5ae3c9dd2c824276ba202e5f77298064ccc7085d',
+                  //   {
+                  //     media_id: route.params.movieId,
+                  //   }
+                  // );
+                  addItemList({
+                    media_type: isEpisodes ? 'tv' : 'movie',
+                    media_id: +route.params.movieId,
+                  });
                   setCheckisInList('checkmark');
                 } else if (checkisInList == 'checkmark') {
-                  axios.post(
-                    'https://api.themoviedb.org/3/list/8215569/remove_item?api_key=fe1b70d9265fdb22caa86dca918116eb&session_id=5ae3c9dd2c824276ba202e5f77298064ccc7085d',
-                    {
-                      media_id: route.params.movieId,
-                    }
-                  );
+                  // axios.post(
+                  //   'https://api.themoviedb.org/3/list/8215569/remove_item?api_key=fe1b70d9265fdb22caa86dca918116eb&session_id=5ae3c9dd2c824276ba202e5f77298064ccc7085d',
+                  //   {
+                  //     media_id: route.params.movieId,
+                  //   }
+                  // );
+                  removeItemList({
+                    media_id: +route.params.movieId,
+                  });
                   setCheckisInList('add');
                 }
               }}

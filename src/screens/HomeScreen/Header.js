@@ -32,7 +32,6 @@ import { Avatar } from 'react-native-paper';
 import axios from 'axios';
 import Images from '../../constants/Images';
 import Constants from 'expo-constants';
-import ListsMovies from './ListsMovies';
 import { useFocusEffect } from '@react-navigation/native';
 import Animated, { Easing } from 'react-native-reanimated';
 
@@ -48,10 +47,12 @@ const Header = ({
   setChooseGenre,
   setActiveGenre,
   years,
+  dataCountries,
   chooseGenre,
   dataGenres,
   activeGenre,
 }) => {
+  const [isTVSelected, setIsTVSelected] = useState(false);
   return (
     <SafeAreaView>
       <View
@@ -139,23 +140,62 @@ const Header = ({
                     alignSelf: 'center',
                   }}
                 >
-                  <Text
+                  <View
                     style={{
-                      fontSize: 16,
-                      paddingVertical: 10,
-                      textAlign: 'center',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                     }}
                   >
-                    Years
-                  </Text>
-                  <ScrollView>
+                    <TouchableOpacity
+                      activeOpacity={0.5}
+                      onPress={() => {
+                        setIsTVSelected(false);
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          paddingVertical: 10,
+                          textAlign: 'center',
+                          color: isTVSelected
+                            ? Colors.LIGHT_GRAY
+                            : Colors.BLACK,
+                        }}
+                      >
+                        Years
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      activeOpacity={0.5}
+                      onPress={() => {
+                        setIsTVSelected(true);
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          paddingVertical: 10,
+                          textAlign: 'center',
+                          marginLeft: 10,
+                          color: isTVSelected
+                            ? Colors.BLACK
+                            : Colors.LIGHT_GRAY,
+                        }}
+                      >
+                        Countries
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  {/* <ScrollView>
                     {years.map((item, index) => (
                       <TouchableOpacity
                         key={index}
                         onPress={() => {
                           navigation.navigate('movieShow', {
                             currentMovies: 'year',
-                            title: item,
+                            title: item?.name,
                           });
                           changeYearsVisbility(false);
                         }}
@@ -170,11 +210,44 @@ const Header = ({
                             borderWidth: 0.2,
                           }}
                         >
-                          {item}
+                          {item?.name}
                         </Text>
                       </TouchableOpacity>
                     ))}
-                  </ScrollView>
+                  </ScrollView> */}
+
+                  <FlatList
+                    data={!isTVSelected ? years : dataCountries}
+                    showsHorizontalScrollIndicator={false}
+                    onEndReachedThreshold={0.5}
+                    keyExtractor={(item, index) => index.toString()}
+                    renderItem={({ item }) => (
+                      <TouchableOpacity
+                        onPress={() => {
+                          navigation.navigate('movieShow', {
+                            currentMovies: 'country',
+                            title: isTVSelected
+                              ? item?.english_name
+                              : item?.name,
+                          });
+                          changeYearsVisbility(false);
+                        }}
+                        activeOpacity={0.5}
+                      >
+                        <Text
+                          style={{
+                            fontSize: 15,
+                            fontFamily: Fonts.REGULAR,
+                            paddingVertical: 15,
+                            borderTopColor: Colors.LIGHT_GRAY,
+                            borderWidth: 0.2,
+                          }}
+                        >
+                          {isTVSelected ? item?.english_name : item?.name}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                  />
                 </View>
               </TouchableOpacity>
             </Modal>
@@ -252,8 +325,12 @@ const Header = ({
                         key={index}
                         onPress={() => {
                           //   handleRefresh(item?.name);
-                          setChooseGenre(item?.name);
-                          setActiveGenre(item?.name);
+                          // setChooseGenre(item?.name);
+                          // setActiveGenre(item?.name);
+                          navigation.navigate('movieShow', {
+                            currentMovies: 'genres',
+                            title: item?.name,
+                          });
                           changeGenresVisbility(false);
                         }}
                         activeOpacity={0.5}

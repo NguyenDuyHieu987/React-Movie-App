@@ -16,7 +16,11 @@ import React, { useState, useCallback, Component, useEffect } from 'react';
 import ItemSeparator from '../../components/ItemSeparator';
 import Fonts from '../../constants/Fonts';
 import Colors from '../../constants/Colors';
-import { getPoster } from '../../services/MovieService';
+import {
+  getMoviesSearch,
+  getMoviesTopSearch,
+  getPoster,
+} from '../../services/MovieService';
 import { Ionicons, Feather } from '@expo/vector-icons';
 import { Searchbar } from 'react-native-paper';
 import {
@@ -34,8 +38,8 @@ const Search = ({ navigation }) => {
   const [isFocused, setIsFocused] = useState(true);
   const [input, setInput] = useState('');
   const [isMount, setIsMount] = useState(false);
-  var [page, setPage] = useState(1);
-  var [pageTopSearch, setPageTopSearch] = useState(1);
+  const [page, setPage] = useState(1);
+  const [pageTopSearch, setPageTopSearch] = useState(1);
   const [loading, setLoading] = useState(false);
   const [loadingTopSearch, setLoadingTopSearch] = useState(false);
 
@@ -50,20 +54,23 @@ const Search = ({ navigation }) => {
     setInput(text);
 
     if (text.length == 0) {
-      setData([]), setIsFocused(true);
+      setIsFocused(true);
+      setData([]);
       return;
     }
 
     if (text.length >= 1) {
-      await axios
-        .get(
-          `https://api.themoviedb.org/3/search/multi?api_key=fe1b70d9265fdb22caa86dca918116eb&query=${text}`
-        )
-        .then((searchMovieResponse) => {
-          setData(searchMovieResponse.data.results),
-            setLoading(false),
-            setIsFocused(false);
-        });
+      // await axios
+      //   .get(
+      //     // `https://api.themoviedb.org/3/search/multi?api_key=fe1b70d9265fdb22caa86dca918116eb&query=${text}`
+      //     `https://the-movie-node.onrender.com/search/multi?api=hieu987&query=${text}`
+      //   )
+
+      getMoviesSearch(input, 1).then((searchMovieResponse) => {
+        setData(searchMovieResponse.data.results);
+      });
+      setLoading(false);
+      setIsFocused(false);
     }
   };
 
@@ -83,11 +90,12 @@ const Search = ({ navigation }) => {
     }, [])
   );
 
-  const getData = async () => {
-    const URL = `https://api.themoviedb.org/3/search/multi?api_key=fe1b70d9265fdb22caa86dca918116eb&query=${input}&page=${page}`;
+  const getData = () => {
+    const URL =
+      // `https://api.themoviedb.org/3/search/multi?api_key=fe1b70d9265fdb22caa86dca918116eb&query=${input}&page=${page}`;
+      `https://the-movie-node.onrender.com/search/multi?api=hieu987&query=${input}&page=${page}`;
 
-    await axios
-      .get(URL)
+    getMoviesSearch(input, page)
       .then((movieRespone) => {
         setData(data.concat(movieRespone.data.results));
         // setData(movieRespone.data.results);
@@ -98,14 +106,14 @@ const Search = ({ navigation }) => {
       });
   };
 
-  const getDataTopSearch = async () => {
+  const getDataTopSearch = () => {
     const URL = `https://api.themoviedb.org/3/discover/movie?api_key=fe1b70d9265fdb22caa86dca918116eb&with_watch_monetization_types=flatrate&page=${pageTopSearch}`;
 
-    await axios
-      .get(URL)
+    getMoviesTopSearch(pageTopSearch)
       .then((movieRespone) => {
         setDataTopSearch(dataTopSearch.concat(movieRespone.data.results));
         // setDataTopSearch(dataTopSearch.concat(movieRespone.data.results));
+        setLoading(false);
       })
       .catch((e) => {
         if (axios.isCancel(e)) return;
@@ -113,13 +121,13 @@ const Search = ({ navigation }) => {
   };
 
   const handleEndReached = () => {
-    setPage(++page);
+    setPage(page + 1);
     setLoading(true);
     getData();
   };
 
   const handleEndReachedTopSearch = () => {
-    setPageTopSearch(++pageTopSearch);
+    setPageTopSearch(pageTopSearch + 1);
     setLoadingTopSearch(true);
     getDataTopSearch();
   };
@@ -167,11 +175,11 @@ const Search = ({ navigation }) => {
             elevation={2}
             iconColor={Colors.ACTIVE}
             loading={true}
-            onClear={() => {
-              setData([]);
-              setLoading(true);
-              setIsFocused(true);
-            }}
+            // onClear={() => {
+            //   setData([]);
+            //   setLoading(true);
+            //   setIsFocused(true);
+            // }}
           />
         </View>
 
@@ -201,28 +209,29 @@ const Search = ({ navigation }) => {
               )}
             />
           </View>
-        ) : null}
-        <FlatList
-          data={data}
-          showsHorizontalScrollIndicator={false}
-          onEndReached={handleEndReached}
-          onEndReachedThreshold={0.5}
-          ListFooterComponent={loading ? renderFooter : null}
-          keyExtractor={(item, index) => index.toString()}
-          ItemSeparatorComponent={() => <ItemSeparator width={15} />}
-          ListHeaderComponent={() => <ItemSeparator width={10} />}
-          renderItem={({ item }) => (
-            <ItemSearch
-              item={item}
-              handleOnPress={() =>
-                navigation.navigate('movie', {
-                  movieId: item.id,
-                  item: item,
-                })
-              }
-            />
-          )}
-        />
+        ) : (
+          <FlatList
+            data={data}
+            showsHorizontalScrollIndicator={false}
+            onEndReached={handleEndReached}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={loading ? renderFooter : null}
+            keyExtractor={(item, index) => index.toString()}
+            ItemSeparatorComponent={() => <ItemSeparator width={15} />}
+            ListHeaderComponent={() => <ItemSeparator width={10} />}
+            renderItem={({ item }) => (
+              <ItemSearch
+                item={item}
+                handleOnPress={() =>
+                  navigation.navigate('movie', {
+                    movieId: item.id,
+                    item: item,
+                  })
+                }
+              />
+            )}
+          />
+        )}
       </SafeAreaView>
     </TouchableNativeFeedback>
   );

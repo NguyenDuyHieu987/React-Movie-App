@@ -15,7 +15,18 @@ import MovieCard from '../../components/MovieCard';
 import { useFocusEffect } from '@react-navigation/native';
 import axios from 'axios';
 import Colors from '../../constants/Colors';
-import { getMoviesByYear, getTVByYear } from '../../services/MovieService';
+import {
+  getDaTaMovie,
+  getDaTaSearchMovie,
+  getDaTaSearchTV,
+  getDaTaTV,
+  getMovieByCountry,
+  getMoviesByGenres,
+  getMoviesByYear,
+  getTVByCountry,
+  getTVByGenres,
+  getTVByYear,
+} from '../../services/MovieService';
 import Fonts from '../../constants/Fonts';
 
 const DefaultPage = ({ route, navigation }) => {
@@ -45,18 +56,15 @@ const DefaultPage = ({ route, navigation }) => {
 
   useEffect(() => {
     getData();
-  }, []);
+  }, [isTVSelected]);
 
   const getData = async () => {
     switch (route.params.currentMovies) {
-      case 'now_playing':
+      case 'nowplaying':
       case 'upcoming':
       case 'popular':
-      case 'top_rated':
-        await axios
-          .get(
-            `https://api.themoviedb.org/3/movie/${route.params.currentMovies}?api_key=fe1b70d9265fdb22caa86dca918116eb&page=${page}`
-          )
+      case 'toprated':
+        getDaTaMovie(route.params.currentMovies, page)
           .then((movieRespone) => {
             setData(data.concat(movieRespone.data.results));
             setLoading(false);
@@ -65,6 +73,23 @@ const DefaultPage = ({ route, navigation }) => {
             if (axios.isCancel(e)) return;
           });
         break;
+      case 'genres':
+        getMoviesByGenres(route.params.title, page)
+          .then((movieRespone) => {
+            setData(data.concat(movieRespone.data.results));
+            setLoading(false);
+          })
+          .catch((e) => {
+            if (axios.isCancel(e)) return;
+          });
+        getTVByGenres(route.params.title, page)
+          .then((movieRespone) => {
+            setDataTV(dataTV.concat(movieRespone.data.results));
+            setLoading(false);
+          })
+          .catch((e) => {
+            if (axios.isCancel(e)) return;
+          });
       case 'year':
         getMoviesByYear(route.params.title, page)
           .then((movieRespone) => {
@@ -82,11 +107,8 @@ const DefaultPage = ({ route, navigation }) => {
           .catch((e) => {
             if (axios.isCancel(e)) return;
           });
-      case 'search':
-        await axios
-          .get(
-            `https://api.themoviedb.org/3/search/movie?api_key=fe1b70d9265fdb22caa86dca918116eb&query=${route.params.title}&page=${page}`
-          )
+      case 'country':
+        getMovieByCountry(route.params.title, page)
           .then((movieRespone) => {
             setData(data.concat(movieRespone.data.results));
             setLoading(false);
@@ -94,10 +116,25 @@ const DefaultPage = ({ route, navigation }) => {
           .catch((e) => {
             if (axios.isCancel(e)) return;
           });
-        await axios
-          .get(
-            `https://api.themoviedb.org/3/search/tv?api_key=fe1b70d9265fdb22caa86dca918116eb&query=${route.params.title}&page=${page}`
-          )
+        getTVByCountry(route.params.title, page)
+          .then((movieRespone) => {
+            setDataTV(dataTV.concat(movieRespone.data.results));
+            setLoading(false);
+          })
+          .catch((e) => {
+            if (axios.isCancel(e)) return;
+          });
+      case 'search':
+        getDaTaSearchMovie(route.params.title, page)
+          .then((movieRespone) => {
+            setData(data.concat(movieRespone.data.results));
+            setLoading(false);
+          })
+          .catch((e) => {
+            if (axios.isCancel(e)) return;
+          });
+
+        getDaTaSearchTV(route.params.title, page)
           .then((movieRespone) => {
             setDataTV(dataTV.concat(movieRespone.data.results));
             setLoading(false);
@@ -109,14 +146,11 @@ const DefaultPage = ({ route, navigation }) => {
         break;
     }
     switch (route.params.currentTV) {
-      case 'airing_today':
-      case 'on_the_air':
+      case 'airingtoday':
+      case 'ontheair':
       case 'popular':
-      case 'top_rated':
-        await axios
-          .get(
-            `https://api.themoviedb.org/3/tv/${route.params.currentTV}?api_key=fe1b70d9265fdb22caa86dca918116eb&page=${page}`
-          )
+      case 'toprated':
+        getDaTaTV(route.params.currentTV, page)
           .then((movieRespone) => {
             setDataTV(dataTV.concat(movieRespone.data.results));
             setLoading(false);
@@ -137,7 +171,6 @@ const DefaultPage = ({ route, navigation }) => {
     }
     getData();
   };
-
   const renderFooter = () => {
     return (
       <View

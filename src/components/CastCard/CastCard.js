@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, Image } from 'react-native';
 import React from 'react';
-import { getPoster } from '../../services/MovieService';
+import { getPoster, getPosterCast } from '../../services/MovieService';
 import Fonts from '../../constants/Fonts';
 import Colors from '../../constants/Colors';
 import Images from '../../constants/Images';
@@ -9,7 +9,7 @@ const CastCard = ({ originalname, image, characterName }) => {
   return (
     <View style={styles.container}>
       <Image
-        source={image ? { uri: getPoster(image) } : Images?.NO_IMAGE}
+        source={image ? { uri: getPosterCast(image) } : Images?.NO_IMAGE}
         resizeMode={image ? 'cover' : 'contain'}
         style={styles.image}
       />

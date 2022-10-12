@@ -17,6 +17,7 @@ import {
   getPoster,
   getLanguage,
   getMovieById,
+  getMovieSeriesById,
 } from '../../services/MovieService';
 import axios from 'axios';
 
@@ -36,26 +37,32 @@ const MovieCard = ({
 }) => {
   const [liked, setLiked] = useState(false);
   const [voteCountValue, setVoteCountValue] = useState(voteCount);
-
-  const [releaseDate, setReleaseDate] = useState('');
+  const [isEpisodes, setIsEpisodes] = useState(false);
+  const [data, setData] = useState({});
 
   useEffect(() => {
-    axios
-      .get(
-        `https://api.themoviedb.org/3/movie/${id}/release_dates?api_key=fe1b70d9265fdb22caa86dca918116eb`
-      )
-      .then((movieRespone) => {
-        setReleaseDate(
-          movieRespone.data?.results[0].release_dates[0].release_date.slice(
-            0,
-            4
-          )
-        );
+    getMovieSeriesById(item?.id)
+      .then((tvResponed) => {
+        // setEpisodes(movieResponed?.data);
+        if (tvResponed?.data === null)
+          getMovieById(item?.id)
+            .then((movieResponed) => {
+              setIsEpisodes(false);
+              setData(movieResponed?.data);
+            })
+            .catch((e) => {
+              if (axios.isCancel(e)) return;
+            });
+        else {
+          setIsEpisodes(true);
+          setData(tvResponed?.data);
+        }
       })
       .catch((e) => {
         if (axios.isCancel(e)) return;
       });
-  }, []);
+  }, [item]);
+
   return (
     <TouchableOpacity
       style={
@@ -141,7 +148,13 @@ const MovieCard = ({
         >
           <Text style={styles.movieSubTitle}>
             {/* {getLanguage(language)?.english_name} */}
-            {releaseDate}
+            {/* {releaseDate} */}
+            {/* {isEpisodes
+              ? item?.first_air_date.slice(0, 4)
+              : item?.release_date.slice(0, 4)} */}
+            {item?.first_air_date
+              ? item?.first_air_date?.slice(0, 4)
+              : item?.release_date?.slice(0, 4)}
           </Text>
           <View style={styles.rowAndCenter}>
             <Ionicons

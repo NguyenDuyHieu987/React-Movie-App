@@ -8,27 +8,49 @@ import {
   ImageBackground,
   Dimensions,
 } from 'react-native';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Colors from '../../constants/Colors';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Fonts from '../../constants/Fonts';
 import Images from '../../constants/Images';
-import { getPoster, getLanguage } from '../../services/MovieService';
+import {
+  getPoster,
+  getLanguage,
+  removeItemList,
+  addItemList,
+  getMovieSeriesById,
+  getMovieById,
+} from '../../services/MovieService';
 import axios from 'axios';
 import { addContext } from '../HomeScreen/HomeScreen';
 
 const { height, width } = Dimensions.get('window');
 
-const ItemList = ({
-  id,
-  title,
-  poster,
-
-  handleOnPress,
-}) => {
+const ItemList = ({ id, title, poster, handleOnPress }) => {
   const [remove, setRemove] = useState(true);
   const [voteCountValue, setVoteCountValue] = useState({});
   const [removeItem, setRemoveItem] = useState(true);
+  const [isEpisodes, setIsEpisodes] = useState(false);
+
+  useEffect(() => {
+    getMovieSeriesById(id)
+      .then((tvResponed) => {
+        if (tvResponed?.data === null)
+          getMovieById(id)
+            .then((movieResponed) => {
+              setIsEpisodes(false);
+            })
+            .catch((e) => {
+              if (axios.isCancel(e)) return;
+            });
+        else {
+          setIsEpisodes(true);
+        }
+      })
+      .catch((e) => {
+        if (axios.isCancel(e)) return;
+      });
+  }, [id]);
 
   return removeItem ? (
     <TouchableOpacity
@@ -53,24 +75,31 @@ const ItemList = ({
           <TouchableNativeFeedback
             style={styles.rowAndCenter}
             onPress={() => {
-              setRemove(!remove);
-              setRemoveItem(false);
-              setVoteCountValue();
-              remove
-                ? (axios.post(
-                    'https://api.themoviedb.org/3/list/8215569/remove_item?api_key=fe1b70d9265fdb22caa86dca918116eb&session_id=5ae3c9dd2c824276ba202e5f77298064ccc7085d',
-                    {
-                      media_id: id,
-                    }
-                  ),
-                  (checkisInList = 'add'))
-                : (axios.post(
-                    'https://api.themoviedb.org/3/list/8215569/add_item?api_key=fe1b70d9265fdb22caa86dca918116eb&session_id=5ae3c9dd2c824276ba202e5f77298064ccc7085d',
-                    {
-                      media_id: id,
-                    }
-                  ),
-                  (checkisInList = 'checkmark'));
+              if (remove === false) {
+                // axios.post(
+                //     'https://api.themoviedb.org/3/list/8215569/remove_item?api_key=fe1b70d9265fdb22caa86dca918116eb&session_id=5ae3c9dd2c824276ba202e5f77298064ccc7085d',
+                //     {
+                //       media_id: id,
+                //     }
+                //   )
+                addItemList({
+                  media_type: isEpisodes ? 'tv' : 'movie',
+                  media_id: +id,
+                });
+                setRemove(false);
+              } else {
+                // axios.post(
+                //     'https://api.themoviedb.org/3/list/8215569/add_item?api_key=fe1b70d9265fdb22caa86dca918116eb&session_id=5ae3c9dd2c824276ba202e5f77298064ccc7085d',
+                //     {
+                //       media_id: id,
+                //     }
+                //   );
+                removeItemList({
+                  media_id: +id,
+                });
+                setRemove(true);
+                setRemoveItem(false);
+              }
             }}
           >
             <View

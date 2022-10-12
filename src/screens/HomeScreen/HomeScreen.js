@@ -45,6 +45,11 @@ import {
   getMoviesByGenresPopular,
   getMoviesByGenresTopRated,
   getMoviesByYear,
+  getAllYear,
+  addItemList,
+  removeItemList,
+  getAllNational,
+  getMovieSeriesById,
 } from '../../services/MovieService';
 import {
   nowPlayingRespone,
@@ -85,7 +90,9 @@ const HomeScreen = ({ navigation }) => {
   const [randomTrending, setRandomTrending] = useState(
     Math.floor(Math.random() * 20)
   );
-  const [dataGenres, setDataGenres] = useState(genreResponse.genres);
+  const [dataGenres, setDataGenres] = useState([]);
+  const [dataYears, setDataYears] = useState([]);
+  const [dataCountries, setDataCountries] = useState([]);
   const [activeGenre, setActiveGenre] = useState('All');
   const [loadingNowPlaying, setLoadingNowPlaying] = useState(false);
   const [loadingUpComing, setLoadingUpComing] = useState(false);
@@ -94,31 +101,7 @@ const HomeScreen = ({ navigation }) => {
   const [isVisibleGenres, setIsVisibleGenres] = useState(false);
   const [isVisibleYears, setIsVisibleYears] = useState(false);
   const [chooseGenre, setChooseGenre] = useState('All');
-  const [years, setYears] = useState([
-    '2022',
-    '2021',
-    '2020',
-    '2019',
-    '2018',
-    '2017',
-    '2016',
-    '2015',
-    '2014',
-    '2013',
-    '2012',
-    '2011',
-    '2010',
-    '2009',
-    '2008',
-    '2007',
-    '2006',
-    '2005',
-    '2004',
-    '2003',
-    '2002',
-    '2001',
-    '2000',
-  ]);
+  const [isEpisodes, setIsEpisodes] = useState(false);
 
   useEffect(() => {
     getData();
@@ -143,57 +126,100 @@ const HomeScreen = ({ navigation }) => {
     return () => clearInterval(intervalId);
   }, []);
 
-  const getData = async () => {
-    await getNowPlayingMovies(pageNowPlaying)
-      .then((movieRespone) => {
-        setDataNowPlayingMovies(movieRespone.data.results);
-      })
-      .catch((e) => {
-        if (axios.isCancel(e)) return;
+  const getData = () => {
+    Promise.all([
+      getNowPlayingMovies(pageNowPlaying),
+      getUpcomingMovies(pageUpComing),
+      getPopularMovies(pagePopular),
+      getTopRatedMovies(pageTopRated),
+      getAllGenres(),
+      getAllYear(),
+      getAllNational(),
+    ])
+      .then((res) => {
+        setDataNowPlayingMovies(res[0].data.results);
+        setDataUpcomingMovies(res[1].data.results);
+        setDataPopularMovies(res[2].data.results);
+        setDataTopRatedMovies(res[3].data.results);
+        setDataGenres(res[4].data);
+        setDataYears(res[5].data);
+        setDataCountries(res[6].data);
       })
       .catch((e) => {
         if (axios.isCancel(e)) return;
       });
 
-    await getUpcomingMovies(pageUpComing)
-      .then((movieRespone) => {
-        setDataUpcomingMovies(movieRespone.data.results);
-      })
-      .catch((e) => {
-        if (axios.isCancel(e)) return;
-      });
-    await getPopularMovies(pagePopular)
-      .then((movieRespone) => {
-        setDataPopularMovies(movieRespone.data.results);
-      })
-      .catch((e) => {
-        if (axios.isCancel(e)) return;
-      });
-    await getTopRatedMovies(pageTopRated)
-      .then((movieRespone) => {
-        setDataTopRatedMovies(movieRespone.data.results);
-      })
-      .catch((e) => {
-        if (axios.isCancel(e)) return;
-      });
+    // getNowPlayingMovies(pageNowPlaying)
+    //   .then((movieRespone) => {
+    //     setDataNowPlayingMovies(movieRespone.data.results);
+    //   })
+    //   .catch((e) => {
+    //     if (axios.isCancel(e)) return;
+    //   });
+
+    // getUpcomingMovies(pageUpComing)
+    //   .then((movieRespone) => {
+    //     setDataUpcomingMovies(movieRespone.data.results);
+    //   })
+    //   .catch((e) => {
+    //     if (axios.isCancel(e)) return;
+    //   });
+
+    // getPopularMovies(pagePopular)
+    //   .then((movieRespone) => {
+    //     setDataPopularMovies(movieRespone.data.results);
+    //   })
+    //   .catch((e) => {
+    //     if (axios.isCancel(e)) return;
+    //   });
+
+    // getTopRatedMovies(pageTopRated)
+    //   .then((movieRespone) => {
+    //     setDataTopRatedMovies(movieRespone.data.results);
+    //   })
+    //   .catch((e) => {
+    //     if (axios.isCancel(e)) return;
+    //   });
+
+    // getAllGenres().then((genreResponse) => {
+    //   setDataGenres(genreResponse.data);
+    // });
+
+    // getAllYear().then((yearResponse) => {
+    //   setDataYears(yearResponse.data);
+    // });
   };
 
   useEffect(() => {
-    GetDataTrending();
-
-    // focusListener = navigation.addListener('focus', () => {});
-
     dataList.map((item) => {
       if (item.id === dataTrendingMoives.id) {
         setCheckIsInList('checkmark');
       }
     });
+  }, [dataList || dataTrendingMoives]);
 
-    // focusListener = navigation.addListener('blur', () => {});
-  }, []);
+  useEffect(() => {
+    getMovieSeriesById(dataTrendingMoives?.id)
+      .then((tvResponed) => {
+        if (tvResponed?.data === null)
+          getMovieById(dataTrendingMoives?.id)
+            .then((movieResponed) => {
+              setIsEpisodes(false);
+            })
+            .catch((e) => {
+              if (axios.isCancel(e)) return;
+            });
+        else {
+          setIsEpisodes(true);
+        }
+      })
+      .catch((e) => {
+        if (axios.isCancel(e)) return;
+      });
+  }, [dataTrendingMoives?.id]);
 
-  const GetDataTrending = async () => {
-    await getTrending().then((movieRespone) => {
+  const GetDataTrending = () => {
+    getTrending(1).then((movieRespone) => {
       setDataTrendingMoives(
         movieRespone?.data?.results[Math.floor(Math.random() * 20)]
       )?.catch((e) => {
@@ -209,11 +235,11 @@ const HomeScreen = ({ navigation }) => {
     });
   }, [dataTrendingMoives]);
 
-  const handleEndReachedNowPlaying = useCallback(async () => {
+  const handleEndReachedNowPlaying = useCallback(() => {
     setPageNowPlaying(++pageNowPlaying);
     setLoadingNowPlaying(true);
 
-    await getNowPlayingMovies(pageNowPlaying)
+    getNowPlayingMovies(pageNowPlaying)
       .then((movieRespone) => {
         setDataNowPlayingMovies(
           dataNowPlayingMovies.concat(movieRespone.data.results)
@@ -224,11 +250,11 @@ const HomeScreen = ({ navigation }) => {
       });
   }, [dataNowPlayingMovies]);
 
-  const handleEndReachedUpComing = useCallback(async () => {
+  const handleEndReachedUpComing = useCallback(() => {
     setPageUpComing(++pageUpComing);
     setLoadingUpComing(true);
 
-    await getUpcomingMovies(pageUpComing)
+    getUpcomingMovies(pageUpComing)
       .then((movieRespone) => {
         setDataUpcomingMovies(
           dataUpcomingMovies.concat(movieRespone.data.results)
@@ -239,11 +265,11 @@ const HomeScreen = ({ navigation }) => {
       });
   }, [dataUpcomingMovies]);
 
-  const handleEndReachedPopular = useCallback(async () => {
+  const handleEndReachedPopular = useCallback(() => {
     setPagePopuLar(++pagePopular);
     setLoadingPopular(true);
 
-    await getPopularMovies(pagePopular)
+    getPopularMovies(pagePopular)
       .then((movieRespone) => {
         setDataPopularMovies(
           dataPopularMovies.concat(movieRespone.data.results)
@@ -254,11 +280,11 @@ const HomeScreen = ({ navigation }) => {
       });
   }, [dataPopularMovies]);
 
-  const handleEndReachedTopRated = useCallback(async () => {
+  const handleEndReachedTopRated = useCallback(() => {
     setPageTopRated(++pageTopRated);
     setLoadingTopRated(true);
 
-    await getTopRatedMovies(pageTopRated)
+    getTopRatedMovies(pageTopRated)
       .then((movieRespone) => {
         setDataTopRatedMovies(
           dataTopRatedMovies.concat(movieRespone.data.results)
@@ -269,45 +295,45 @@ const HomeScreen = ({ navigation }) => {
       });
   }, [dataTopRatedMovies]);
 
-  const getDataByGenres = async (genreName) => {
-    await getMoviesByGenresNowPlaying(pageNowPlaying, genreName)
-      .then((movieRespone) => {
-        setDataNowPlayingMovies(movieRespone.data.results);
-      })
-      .catch((e) => {
-        if (axios.isCancel(e)) return;
-      });
+  // const getDataByGenres = (genreName) => {
+  //   getMoviesByGenresNowPlaying(pageNowPlaying, genreName)
+  //     .then((movieRespone) => {
+  //       setDataNowPlayingMovies(movieRespone.data.results);
+  //     })
+  //     .catch((e) => {
+  //       if (axios.isCancel(e)) return;
+  //     });
 
-    await getMoviesByGenresUpComing(pageUpComing, genreName)
-      .then((movieRespone) => {
-        setDataUpcomingMovies(movieRespone.data.results);
-      })
-      .catch((e) => {
-        if (axios.isCancel(e)) return;
-      });
-    await getMoviesByGenresPopular(pagePopular, genreName)
-      .then((movieRespone) => {
-        setDataPopularMovies(movieRespone.data.results);
-      })
-      .catch((e) => {
-        if (axios.isCancel(e)) return;
-      });
-    await getMoviesByGenresTopRated(pageTopRated, genreName)
-      .then((movieRespone) => {
-        setDataTopRatedMovies(movieRespone.data.results);
-      })
-      .catch((e) => {
-        if (axios.isCancel(e)) return;
-      });
-  };
+  //   getMoviesByGenresUpComing(pageUpComing, genreName)
+  //     .then((movieRespone) => {
+  //       setDataUpcomingMovies(movieRespone.data.results);
+  //     })
+  //     .catch((e) => {
+  //       if (axios.isCancel(e)) return;
+  //     });
+  //   getMoviesByGenresPopular(pagePopular, genreName)
+  //     .then((movieRespone) => {
+  //       setDataPopularMovies(movieRespone.data.results);
+  //     })
+  //     .catch((e) => {
+  //       if (axios.isCancel(e)) return;
+  //     });
+  //   getMoviesByGenresTopRated(pageTopRated, genreName)
+  //     .then((movieRespone) => {
+  //       setDataTopRatedMovies(movieRespone.data.results);
+  //     })
+  //     .catch((e) => {
+  //       if (axios.isCancel(e)) return;
+  //     });
+  // };
 
-  useEffect(() => {
-    if (activeGenre === 'All') {
-      getData();
-    } else {
-      getDataByGenres(activeGenre);
-    }
-  }, [activeGenre]);
+  // useEffect(() => {
+  //   if (activeGenre === 'All') {
+  //     getData();
+  //   } else {
+  //     getDataByGenres(activeGenre);
+  //   }
+  // }, [activeGenre]);
 
   const handleRefresh = (genreName) => {
     // if (genreName === 'All') {
@@ -370,7 +396,8 @@ const HomeScreen = ({ navigation }) => {
           dataGenres={dataGenres}
           activeGenre={activeGenre}
           setActiveGenre={setActiveGenre}
-          years={years}
+          years={dataYears}
+          dataCountries={dataCountries}
           chooseGenre={chooseGenre}
           isVisibleYears={isVisibleYears}
           changeYearsVisbility={changeYearsVisbility}
@@ -496,21 +523,28 @@ const HomeScreen = ({ navigation }) => {
                 }}
                 onPress={() => {
                   if (checkisInList === 'add') {
+                    // axios.post(
+                    //   'https://api.themoviedb.org/3/list/8215569/add_item?api_key=fe1b70d9265fdb22caa86dca918116eb&session_id=5ae3c9dd2c824276ba202e5f77298064ccc7085d',
+                    //   {
+                    //     media_id: dataTrendingMoives?.id,
+                    //   }
+                    // );
+                    addItemList({
+                      media_type: isEpisodes ? 'tv' : 'movie',
+                      media_id: +dataTrendingMoives?.id,
+                    });
                     setCheckIsInList('checkmark');
-                    axios.post(
-                      'https://api.themoviedb.org/3/list/8215569/add_item?api_key=fe1b70d9265fdb22caa86dca918116eb&session_id=5ae3c9dd2c824276ba202e5f77298064ccc7085d',
-                      {
-                        media_id: dataTrendingMoives?.id,
-                      }
-                    );
                   } else if (checkisInList === 'checkmark') {
+                    // axios.post(
+                    //   'https://api.themoviedb.org/3/list/8215569/remove_item?api_key=fe1b70d9265fdb22caa86dca918116eb&session_id=5ae3c9dd2c824276ba202e5f77298064ccc7085d',
+                    //   {
+                    //     media_id: dataTrendingMoives?.id,
+                    //   }
+                    // );
+                    removeItemList({
+                      media_id: +dataTrendingMoives.id,
+                    });
                     setCheckIsInList('add');
-                    axios.post(
-                      'https://api.themoviedb.org/3/list/8215569/remove_item?api_key=fe1b70d9265fdb22caa86dca918116eb&session_id=5ae3c9dd2c824276ba202e5f77298064ccc7085d',
-                      {
-                        media_id: dataTrendingMoives?.id,
-                      }
-                    );
                   }
                 }}
               >
@@ -593,8 +627,8 @@ const HomeScreen = ({ navigation }) => {
           <TouchableOpacity
             onPress={() =>
               navigation.navigate('movieShow', {
-                currentMovies: 'now_playing',
-                currentTV: 'airing_today',
+                currentMovies: 'nowplaying',
+                currentTV: 'airingtoday',
                 title: 'Now Playing',
               })
             }
@@ -619,7 +653,7 @@ const HomeScreen = ({ navigation }) => {
             onPress={() =>
               navigation.navigate('movieShow', {
                 currentMovies: 'upcoming',
-                currentTV: 'on_the_air',
+                currentTV: 'ontheair',
                 title: 'Coming Soon',
               })
             }
@@ -668,8 +702,8 @@ const HomeScreen = ({ navigation }) => {
           <TouchableOpacity
             onPress={() =>
               navigation.navigate('movieShow', {
-                currentMovies: 'top_rated',
-                currentTV: 'top_rated',
+                currentMovies: 'toprated',
+                currentTV: 'toprated',
                 title: 'Top Rated',
               })
             }

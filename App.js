@@ -123,7 +123,7 @@ const App = ({ navigation }) => {
 
       if (userName == 'vaicut6941@gmail.com' && password == 'Pass') {
         try {
-          // userToken = '123';
+          userToken = '123';
           await AsyncStorage.setItem('userToken', userToken);
         } catch (e) {
           console.log(e);
@@ -180,8 +180,6 @@ const App = ({ navigation }) => {
                 }}
               /> */}
 
-
-
             <Stack.Screen
               name="home"
               component={MainStackNavigator}
@@ -208,7 +206,7 @@ const App = ({ navigation }) => {
                   backgroundColor: Colors.LIGHT_BLACK,
                 },
                 headerTintColor: Colors.WHITE,
-                headerTitleAlign: "center",
+                headerTitleAlign: 'center',
                 cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
               })}
             />

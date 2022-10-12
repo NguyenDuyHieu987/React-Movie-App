@@ -7,7 +7,7 @@ import {
   Dimensions,
 } from 'react-native';
 import React from 'react';
-import { getPoster } from '../../services/MovieService';
+import { getPoster, getPosterCast } from '../../services/MovieService';
 import Colors from '../../constants/Colors';
 
 const width = Dimensions.get('window').width;
@@ -34,7 +34,7 @@ const EpisodeBox = ({ item }) => {
             height: 80,
             width: width / 3,
           }}
-          source={{ uri: getPoster(item?.still_path) }}
+          source={{ uri: getPosterCast(item?.still_path) }}
           resizeMode="contain"
         />
         <View style={{ marginLeft: 10 }}>

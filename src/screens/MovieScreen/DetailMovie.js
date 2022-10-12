@@ -70,19 +70,25 @@ const DetailMovie = ({
     'Season ' + dataMovies?.last_episode_to_air?.season_number
   );
   const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (isEpisodes) {
+      setNumberOfSeasons(dataMovies?.last_episode_to_air?.season_number);
+      setActiveSeason(
+        'Season ' + dataMovies?.last_episode_to_air?.season_number
+      );
+    }
+  }, [dataMovies?.last_episode_to_air?.season_number]);
 
   useEffect(() => {
-    setNumberOfSeasons(dataMovies?.last_episode_to_air?.season_number);
-    setActiveSeason('Season ' + dataMovies?.last_episode_to_air?.season_number);
-  }, [dataMovies?.last_episode_to_air?.season_number]);
-  useEffect(() => {
-    getMoviesBySeason(dataMovies?.id, numberOfSeasons)
-      .then((episodesRespones) => {
-        setDataSeason(episodesRespones?.data);
-      })
-      .catch((e) => {
-        if (axios.isCancel(e)) return;
-      });
+    if (isEpisodes) {
+      getMoviesBySeason(dataMovies?.id, numberOfSeasons)
+        .then((episodesRespones) => {
+          setDataSeason(episodesRespones?.data);
+        })
+        .catch((e) => {
+          if (axios.isCancel(e)) return;
+        });
+    }
   }, [numberOfSeasons]);
 
   useEffect(() => {
