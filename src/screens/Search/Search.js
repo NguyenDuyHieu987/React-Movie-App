@@ -39,8 +39,8 @@ const Search = ({ navigation }) => {
   const [isFocused, setIsFocused] = useState(true);
   const [input, setInput] = useState('');
   const [isMount, setIsMount] = useState(false);
-  const [page, setPage] = useState(1);
-  const [pageTopSearch, setPageTopSearch] = useState(1);
+  var [page, setPage] = useState(1);
+  var [pageTopSearch, setPageTopSearch] = useState(1);
   const [loading, setLoading] = useState(false);
   const [loadingSearchBar, setLoadingSearchBar] = useState(false);
   const [loadingTopSearch, setLoadingTopSearch] = useState(false);
@@ -127,13 +127,13 @@ const Search = ({ navigation }) => {
   };
 
   const handleEndReached = () => {
-    setPage(page + 1);
+    setPage(++page);
     setLoading(true);
     getData();
   };
 
   const handleEndReachedTopSearch = () => {
-    setPageTopSearch(pageTopSearch + 1);
+    setPageTopSearch(++pageTopSearch);
     setLoadingTopSearch(true);
     getDataTopSearch();
   };
@@ -152,7 +152,7 @@ const Search = ({ navigation }) => {
           flexDirection: 'column',
           alignItems: 'center',
           marginTop: 5,
-          marginBottom: 20,
+          marginBottom: 35,
         }}
       >
         <ActivityIndicator size="small" />

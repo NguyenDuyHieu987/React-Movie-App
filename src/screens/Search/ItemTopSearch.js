@@ -42,10 +42,10 @@ const ItemTopSearch = ({ item, handleOnPress }) => {
         />
         <View>
           <Text style={styles.ItemSearchText} numberOfLines={2}>
-            {item?.title}
+            {item?.name ? item?.name : item?.title}
           </Text>
           <Text style={styles.ItemSearchTextBottom} numberOfLines={1}>
-            {item?.original_title}
+            {item?.original_name ? item?.original_name : item?.original_title}
           </Text>
         </View>
       </View>
