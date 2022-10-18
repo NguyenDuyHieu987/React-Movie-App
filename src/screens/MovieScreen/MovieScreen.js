@@ -371,12 +371,12 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.BLACK,
   },
   moviePosterImageContainer: {
-    height: setHeight(35),
+    height: setHeight(40),
     width: setWidth(145),
     alignItems: 'center',
     position: 'absolute',
     left: setWidth(-46 / 2),
-    top: 40,
+    // top: 40,
     borderBottomRightRadius: 260,
     borderBottomLeftRadius: 260,
     elevation: 15,
@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 260,
     borderBottomLeftRadius: 260,
     width: setWidth(145),
-    height: setHeight(35),
+    height: setHeight(40),
   },
   linearGradient: {
     width: setWidth(100),
