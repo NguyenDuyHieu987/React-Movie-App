@@ -106,7 +106,7 @@ const MovieCard = ({
             {voteAverage}
           </Text>
         </View>
-        {heartLess != false ? (
+        {heartLess === false ? (
           <TouchableNativeFeedback
             onPress={() => {
               setLiked(!liked);
@@ -117,7 +117,7 @@ const MovieCard = ({
           >
             <Ionicons
               name={liked ? 'heart' : 'heart-outline'}
-              size={25 * size}
+              size={25}
               color={liked ? Colors.HEART : Colors.YELLOW}
               style={{
                 position: 'absolute',
@@ -137,7 +137,7 @@ const MovieCard = ({
           }
           numberOfLines={size === 0.5 ? 1 : 3}
         >
-          {item?.name ? item.name : item?.title}
+          {item?.title ? item?.title : item?.name}
         </Text>
         <View
           style={

@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useReducer,
 } from 'react';
-import { StyleSheet, LogBox } from 'react-native';
+import { StyleSheet, LogBox, View } from 'react-native';
 import { NavigationContainer, StackActions } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {
@@ -17,7 +17,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MovieScreen from './src/screens/MovieScreen';
 import DefaultPage from './src/screens/DefaultPage';
 import { useFonts } from 'expo-font';
-import AppLoading from 'expo-app-loading';
+import ActivityIndicator from 'expo-app-loading';
 import Colors from './src/constants/Colors';
 import Search from './src/screens/Search';
 import VideoPlayer from './src/screens/VideoPlayer';
@@ -30,21 +30,38 @@ import MainStackNavigator from './src/screens/MainStackNavigator/MainStackNaviga
 import RootStackScreen from './src/screens/RootScreen/RootScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import WellcomeScreen from './src/screens/WellcomeScreen';
+import AppLoading from 'expo-app-loading';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 SplashScreen.preventAutoHideAsync();
 
-const App = ({ navigation }) => {
+const App = () => {
   const [fontLoaded] = useFonts({
-    Regular: require('./assets/fonts/NunitoSans-Regular.ttf'),
-    Bold: require('./assets/fonts/NunitoSans-Bold.ttf'),
-    Black: require('./assets/fonts/NunitoSans-Black.ttf'),
-    ExtraBold: require('./assets/fonts/NunitoSans-ExtraBold.ttf'),
-    ExtraLight: require('./assets/fonts/NunitoSans-ExtraLight.ttf'),
-    Light: require('./assets/fonts/NunitoSans-Light.ttf'),
-    SemiBold: require('./assets/fonts/NunitoSans-SemiBold.ttf'),
+    // Regular: require('./assets/fonts/NunitoSans/NunitoSans-Regular.ttf'),
+    // Bold: require('./assets/fonts/NunitoSans/NunitoSans-Bold.ttf'),
+    // Black: require('./assets/fonts/NunitoSans/NunitoSans-Black.ttf'),
+    // ExtraBold: require('./assets/fonts/NunitoSans/NunitoSans-ExtraBold.ttf'),
+    // ExtraLight: require('./assets/fonts/NunitoSans/NunitoSans-ExtraLight.ttf'),
+    // Light: require('./assets/fonts/NunitoSans/NunitoSans-Light.ttf'),
+    // SemiBold: require('./assets/fonts/NunitoSans/NunitoSans-SemiBold.ttf'),
+
+    Regular: require('./assets/fonts/OpenSans/OpenSans-Regular.ttf'),
+    Bold: require('./assets/fonts/OpenSans/OpenSans-Bold.ttf'),
+    Black: require('./assets/fonts/OpenSans/OpenSans-Bold.ttf'),
+    ExtraBold: require('./assets/fonts/OpenSans/OpenSans-ExtraBold.ttf'),
+    ExtraLight: require('./assets/fonts/OpenSans/OpenSans-Light.ttf'),
+    Light: require('./assets/fonts/OpenSans/OpenSans-Light.ttf'),
+    SemiBold: require('./assets/fonts/OpenSans/OpenSans-SemiBold.ttf'),
+
+    // Regular: require('./assets/fonts/Roboto/Roboto-Regular.ttf'),
+    // Bold: require('./assets/fonts/Roboto/Roboto-Bold.ttf'),
+    // Black: require('./assets/fonts/Roboto/Roboto-Black.ttf'),
+    // ExtraBold: require('./assets/fonts/Roboto/Roboto-Bold.ttf'),
+    // ExtraLight: require('./assets/fonts/Roboto/Roboto-Light.ttf'),
+    // Light: require('./assets/fonts/Roboto/Roboto-Light.ttf'),
+    // SemiBold: require('./assets/fonts/Roboto/Roboto-Bold.ttf'),
   });
 
   // const [appIsReady, setAppIsReady] = useState(false);
@@ -213,10 +230,16 @@ const App = ({ navigation }) => {
 
             <Stack.Screen
               name="search"
-              component={Search}
-              options={{
-                headerShown: false,
-              }}
+              component={DefaultPage}
+              options={({ navigation, route }) => ({
+                headerTitle: 'Results for: ' + route.params.title,
+                headerStyle: {
+                  backgroundColor: Colors.LIGHT_BLACK,
+                },
+                headerTintColor: Colors.WHITE,
+                headerTitleAlign: 'left',
+                cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+              })}
             />
 
             <Stack.Screen
@@ -234,6 +257,9 @@ const App = ({ navigation }) => {
       </NavigationContainer>
     </AuthContext.Provider>
   ) : (
+    // <View>
+    //   <ActivityIndicator />
+    // </View>
     <AppLoading />
   );
 };

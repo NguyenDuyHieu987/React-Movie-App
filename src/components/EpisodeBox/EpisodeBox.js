@@ -9,6 +9,7 @@ import {
 import React from 'react';
 import { getPoster, getPosterCast } from '../../services/MovieService';
 import Colors from '../../constants/Colors';
+import Fonts from '../../constants/Fonts';
 
 const width = Dimensions.get('window').width;
 const EpisodeBox = ({ item }) => {
@@ -40,16 +41,32 @@ const EpisodeBox = ({ item }) => {
         <View style={{ marginLeft: 10 }}>
           <Text
             style={{
+              fontFamily: Fonts.REGULAR,
+
               width: width * 0.6,
             }}
             numberOfLines={2}
           >
             {item?.episode_number + '. ' + item?.name}
           </Text>
-          <Text>{item?.air_date}</Text>
+          <Text
+            style={{
+              fontFamily: Fonts.REGULAR,
+              color: Colors.LIGHT_GRAY,
+            }}
+          >
+            {item?.air_date}
+          </Text>
         </View>
       </View>
-      <Text style={{ color: Colors.LIGHT_GRAY }}>{item?.overview}</Text>
+      <Text
+        style={{
+          fontFamily: Fonts.REGULAR,
+          color: Colors.LIGHT_GRAY,
+        }}
+      >
+        {item?.overview}
+      </Text>
     </TouchableOpacity>
   );
 };

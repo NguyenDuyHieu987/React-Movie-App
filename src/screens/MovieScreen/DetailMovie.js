@@ -8,9 +8,10 @@ import {
   FlatList,
   SafeAreaView,
   ActivityIndicator,
-  Modal,
   ScrollView,
   LogBox,
+  Image,
+  Linking,
 } from 'react-native';
 import React, { Component, memo, useEffect, useState } from 'react';
 import Colors from '../../constants/Colors';
@@ -20,10 +21,15 @@ import ItemSeparator from '../../components/ItemSeparator';
 import CastCard from '../../components/CastCard';
 import MovieCard from '../../components/MovieCard';
 import DropDownPicker from 'react-native-dropdown-picker';
-import { getLanguage, getMoviesBySeason } from '../../services/MovieService';
+import {
+  getLanguage,
+  getMoviesBySeason,
+  getVideo,
+} from '../../services/MovieService';
 import ListMovieHorizontal from '../../components/ListMovieHorizontal/ListMovieHorizontal';
 import EpisodeBox from '../../components/EpisodeBox/EpisodeBox';
 import axios from 'axios';
+import Images from '../../constants/Images';
 
 const { height, width } = Dimensions.get('window');
 
@@ -103,43 +109,71 @@ const DetailMovie = ({
             {dataMovies?.title ? dataMovies?.title : dataMovies?.name}
           </Text>
           <Text style={styles.movieOriginalTitle} numberOfLines={2}>
-            {'Original title: '}
+            <Text style={styles.labelText}>Original title: </Text>
             {dataMovies?.original_title
               ? dataMovies?.original_title
               : dataMovies?.original_name}
           </Text>
         </View>
-        <View style={styles.row}>
+        <View style={styles.voteAverage}>
           <Ionicons name="star" size={22} color={Colors.YELLOW} />
-          <Text style={styles.raitingText}>{dataMovies?.vote_average}</Text>
+          <Text style={styles.raitingText}>
+            {dataMovies?.vote_average?.toFixed(2)}
+          </Text>
         </View>
       </View>
-      <Text style={styles.genreText}>
-        {'Genres: ' +
-          dataMovies?.genres?.map((genre) => genre?.name)?.join(', ')}
-      </Text>
-      <Text style={styles.genreText}>
-        {getLanguage(dataMovies?.original_language)?.english_name}
-      </Text>
-      <Text style={styles.genreText}>
-        {dataMovies?.episode_run_time === undefined
-          ? 'Run time: '
-          : 'Run time per episode: '}
-        {dataMovies?.episode_run_time === undefined
-          ? dataMovies?.runtime + ' Min'
-          : dataMovies?.episode_run_time[0] + ' Min'}
-      </Text>
-      <Text style={styles.genreText}>
-        {'Realease date: '}
-        {dataMovies?.release_date
-          ? dataMovies?.release_date
-          : dataMovies?.last_air_date}
-      </Text>
+
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        <View>
+          <Text style={{ ...styles.genreText, width: width / 1.5 }}>
+            <Text style={styles.labelText}>Genres: </Text>
+            {dataMovies?.genres?.map((genre) => genre?.name)?.join(', ')}
+          </Text>
+          <Text style={styles.genreText}>
+            <Text style={styles.labelText}>Language: </Text>
+            {getLanguage(dataMovies?.original_language)?.english_name}
+          </Text>
+          <Text style={styles.genreText}>
+            {dataMovies?.episode_run_time === undefined ? (
+              <Text style={styles.labelText}>Run time: </Text>
+            ) : (
+              <Text style={styles.labelText}>Run time per episode: </Text>
+            )}
+            {dataMovies?.episode_run_time === undefined
+              ? dataMovies?.runtime + ' Min'
+              : dataMovies?.episode_run_time[0] + ' Min'}
+          </Text>
+          <Text style={styles.genreText}>
+            <Text style={styles.labelText}>Realease date: </Text>
+            {dataMovies?.release_date
+              ? dataMovies?.release_date
+              : dataMovies?.last_air_date}
+          </Text>
+        </View>
+        <TouchableOpacity
+          style={{
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginRight: 30,
+          }}
+          onPress={() =>
+            Linking.openURL(getVideo(dataMovies?.videos?.results[0].key))
+          }
+        >
+          <Image
+            source={require('../../../assets/images/play.png')}
+            style={{
+              transform: [{ scale: 0.7 }],
+            }}
+          />
+          <Text style={styles.labelText}>Trailer</Text>
+        </TouchableOpacity>
+      </View>
+
       <View style={styles.overViewContainer}>
         <Text style={styles.overViewTitle}>Overview</Text>
         <Text style={styles.overViewText}>{dataMovies?.overview}</Text>
       </View>
-
       {isEpisodes === true ? (
         <View>
           <Text
@@ -178,6 +212,7 @@ const DetailMovie = ({
                 fontSize: 16,
                 textAlign: 'center',
                 marginRight: 10,
+                fontFamily: Fonts.REGULAR,
               }}
             >
               {activeSeason}
@@ -224,6 +259,7 @@ const DetailMovie = ({
                 >
                   <Text
                     style={{
+                      fontFamily: Fonts.REGULAR,
                       fontSize: 16,
                     }}
                   >
@@ -365,16 +401,22 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.EXTRA_BOLD,
     fontSize: 15,
   },
-  row: {
+  voteAverage: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginRight: 20,
+  },
+  labelText: {
+    color: Colors.LIGHT_GRAY,
+    fontFamily: Fonts.BOLD,
+    fontSize: 14,
   },
   genreText: {
     color: Colors.LIGHT_GRAY,
     paddingHorizontal: 15,
     marginTop: 5,
-    fontFamily: Fonts.BOLD,
-    fontSize: 13,
+    fontFamily: Fonts.REGULAR,
+    fontSize: 14,
   },
   overViewContainer: {
     color: Colors.LIGHT_GRAY,
@@ -390,8 +432,8 @@ const styles = StyleSheet.create({
   overViewText: {
     color: Colors.LIGHT_GRAY,
     paddingVertical: 5,
-    fontFamily: Fonts.BOLD,
-    fontSize: 13,
+    fontFamily: Fonts.REGULAR,
+    fontSize: 14,
     textAlign: 'justify',
   },
   castTitle: {

@@ -247,7 +247,11 @@ const MovieScreen = ({ movieId, route, navigation, item }) => {
         <TouchableOpacity
           style={styles.playButton}
           onPress={() =>
-            Linking.openURL(getVideo(dataMovies.videos.results[0].key))
+            // Linking.openURL(getVideo(dataMovies.videos.results[0].key))
+            navigation.navigate('video', {
+              dataMovie: dataMovies,
+              isEpisodes: isEpisodes,
+            })
           }
         >
           <Ionicons
@@ -290,7 +294,11 @@ const MovieScreen = ({ movieId, route, navigation, item }) => {
               height: 45,
             }}
             onPress={() =>
-              Linking.openURL(getVideo(dataMovies.videos.results[0].key))
+              // Linking.openURL(getVideo(dataMovies.videos.results[0].key))
+              navigation.navigate('video', {
+                dataMovie: dataMovies,
+                isEpisodes: isEpisodes,
+              })
             }
             activeOpacity={0.5}
           >

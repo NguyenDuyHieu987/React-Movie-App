@@ -22,7 +22,8 @@ import {
   getPoster,
 } from '../../services/MovieService';
 import { Ionicons, Feather } from '@expo/vector-icons';
-import { Searchbar } from 'react-native-paper';
+// import { Searchbar } from 'react-native-paper';
+import { SearchBar } from 'react-native-elements';
 import {
   useFocusEffect,
   useIsFocused,
@@ -41,19 +42,20 @@ const Search = ({ navigation }) => {
   const [page, setPage] = useState(1);
   const [pageTopSearch, setPageTopSearch] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [loadingSearchBar, setLoadingSearchBar] = useState(false);
   const [loadingTopSearch, setLoadingTopSearch] = useState(false);
 
   useEffect(() => {
     getDataTopSearch();
-    focusListener = navigation.addListener('focus', () => {});
-
-    focusListener = navigation.addListener('blur', () => {});
+    // focusListener = navigation.addListener('focus', () => {});
+    // focusListener = navigation.addListener('blur', () => {});
   }, []);
 
   const onChangeText = async (text) => {
     setInput(text);
 
     if (text.length == 0) {
+      setLoadingSearchBar(false);
       setIsFocused(true);
       setData([]);
       return;
@@ -69,9 +71,13 @@ const Search = ({ navigation }) => {
       getMoviesSearch(input, 1).then((searchMovieResponse) => {
         setData(searchMovieResponse.data.results);
       });
+      setLoadingSearchBar(true);
       setLoading(false);
       setIsFocused(false);
     }
+    setTimeout(() => {
+      setLoadingSearchBar(false);
+    }, 500);
   };
 
   useFocusEffect(
@@ -133,14 +139,10 @@ const Search = ({ navigation }) => {
   };
 
   const handleKeyDown = (e) => {
-    navigation.navigate('movieShow', {
+    navigation.navigate('search', {
       currentMovies: 'search',
       title: input,
     });
-    // if (e.nativeEvent.key === 'Enter') {
-    //   console.log('Enter');
-    //   // dismissKeyboard();
-    // }
   };
 
   const renderFooter = () => {
@@ -164,11 +166,12 @@ const Search = ({ navigation }) => {
       <SafeAreaView style={styles.container}>
         <Text style={styles.headerText}>Search</Text>
         <View style={styles.textInputContainer}>
-          <Searchbar
+          <SearchBar
             style={styles.textInput}
             placeholder="Type here..."
             onChangeText={onChangeText}
             onIconPress={handleKeyDown}
+            onSubmitEditing={handleKeyDown}
             // onKeyPress={handleKeyDown}
             value={input}
             autoFocus={false}
@@ -180,6 +183,11 @@ const Search = ({ navigation }) => {
             //   setLoading(true);
             //   setIsFocused(true);
             // }}
+            platform="android"
+            clearIcon={true}
+            searchIcon={true}
+            cancelIcon={true}
+            showLoading={loadingSearchBar}
           />
         </View>
 
@@ -260,6 +268,8 @@ const styles = StyleSheet.create({
   },
 
   textInput: {
+    paddingVertical: 7,
+    paddingLeft: 15,
     backgroundColor: Colors.EXTRA_LIGHT_GRAY,
     fontSize: 16,
     borderWidth: 0.5,

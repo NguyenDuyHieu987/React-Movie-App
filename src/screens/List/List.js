@@ -70,7 +70,7 @@ const List = ({ navigation }) => {
         renderItem={({ item }) => (
           <ItemList
             id={item.id}
-            title={item.title}
+            title={item?.title ? item?.title : item?.name}
             poster={item.poster_path}
             handleOnPress={() =>
               navigation.navigate('movie', {
@@ -99,7 +99,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontSize: 22,
+    color: Colors.ACTIVE,
+    fontSize: 30,
     fontFamily: Fonts.EXTRA_BOLD,
   },
 });

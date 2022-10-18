@@ -126,6 +126,51 @@ const HomeScreen = ({ navigation }) => {
     return () => clearInterval(intervalId);
   }, []);
 
+  useEffect(() => {
+    if (dataTrendingMoives?.id !== undefined) {
+      getMovieSeriesById(dataTrendingMoives?.id)
+        .then((tvResponed) => {
+          if (tvResponed?.data === null)
+            getMovieById(dataTrendingMoives?.id)
+              .then((movieResponed) => {
+                setIsEpisodes(false);
+              })
+              .catch((e) => {
+                if (axios.isCancel(e)) return;
+              });
+          else {
+            setIsEpisodes(true);
+          }
+        })
+        .catch((e) => {
+          if (axios.isCancel(e)) return;
+        });
+    }
+
+    getList().then((movieRespone) => {
+      setDataList(movieRespone.data.items);
+    });
+  }, [dataTrendingMoives?.id]);
+
+  const GetDataTrending = () => {
+    getTrending(1).then((movieRespone) => {
+      setDataTrendingMoives(
+        movieRespone?.data?.results[Math.floor(Math.random() * 20)]
+      )?.catch((e) => {
+        if (axios.isCancel(e)) return;
+      });
+      setCheckIsInList('add');
+    });
+  };
+
+  useEffect(() => {
+    dataList.map((item) => {
+      if (item.id === dataTrendingMoives?.id) {
+        setCheckIsInList('checkmark');
+      }
+    });
+  }, [dataList || dataTrendingMoives]);
+
   const getData = () => {
     Promise.all([
       getNowPlayingMovies(pageNowPlaying),
@@ -189,53 +234,6 @@ const HomeScreen = ({ navigation }) => {
     //   setDataYears(yearResponse.data);
     // });
   };
-
-  useEffect(() => {
-    dataList.map((item) => {
-      if (item.id === dataTrendingMoives.id) {
-        setCheckIsInList('checkmark');
-      }
-    });
-  }, [dataList || dataTrendingMoives]);
-
-  useEffect(() => {
-    if (dataTrendingMoives?.id !== undefined) {
-      getMovieSeriesById(dataTrendingMoives?.id)
-        .then((tvResponed) => {
-          if (tvResponed?.data === null)
-            getMovieById(dataTrendingMoives?.id)
-              .then((movieResponed) => {
-                setIsEpisodes(false);
-              })
-              .catch((e) => {
-                if (axios.isCancel(e)) return;
-              });
-          else {
-            setIsEpisodes(true);
-          }
-        })
-        .catch((e) => {
-          if (axios.isCancel(e)) return;
-        });
-    }
-  }, [dataTrendingMoives?.id]);
-
-  const GetDataTrending = () => {
-    getTrending(1).then((movieRespone) => {
-      setDataTrendingMoives(
-        movieRespone?.data?.results[Math.floor(Math.random() * 20) + 1]
-      )?.catch((e) => {
-        if (axios.isCancel(e)) return;
-      });
-      setCheckIsInList('add');
-    });
-  };
-
-  useEffect(() => {
-    getList().then((movieRespone) => {
-      setDataList(movieRespone.data.items);
-    });
-  }, [dataTrendingMoives]);
 
   const handleEndReachedNowPlaying = useCallback(() => {
     setPageNowPlaying(++pageNowPlaying);
@@ -423,7 +421,7 @@ const HomeScreen = ({ navigation }) => {
             activeOpacity={1}
             onPress={() =>
               navigation.navigate('movie', {
-                movieId: dataTrendingMoives.id,
+                movieId: dataTrendingMoives?.id,
                 item: dataTrendingMoives,
               })
             }
@@ -499,8 +497,7 @@ const HomeScreen = ({ navigation }) => {
                 }}
                 onPress={() =>
                   navigation.navigate('video', {
-                    movieId: dataTrendingMoives.id,
-                    item: dataTrendingMoives,
+                    movieId: dataTrendingMoives?.id,
                   })
                 }
               >
@@ -544,7 +541,7 @@ const HomeScreen = ({ navigation }) => {
                     //   }
                     // );
                     removeItemList({
-                      media_id: +dataTrendingMoives.id,
+                      media_id: +dataTrendingMoives?.id,
                     });
                     setCheckIsInList('add');
                   }
