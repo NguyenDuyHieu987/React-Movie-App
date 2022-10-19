@@ -24,8 +24,6 @@ import List from '../List';
 import Setting from '../Setting/Setting';
 import BottomTabNavigator from '../BottomTabNavigator';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import Animated from 'react-native-reanimated';
-import Header from '../HomeScreen/Header';
 import { AuthContext } from '../../store/AuthProvider';
 import Images from '../../constants/Images';
 
@@ -145,45 +143,17 @@ const DrawerContent = (props, { navigation }) => {
 };
 
 const DrawerNavigator = () => {
-  const { scrolly } = useContext(AuthContext);
-
-  const diffClamp = useRef(Animated.diffClamp(scrolly, 0, 90)).current;
-
-  const header_translateY = Animated.interpolateNode(diffClamp, {
-    inputRange: [0, 90],
-    outputRange: [0, -90],
-    extrapolate: 'clamp',
-  });
-
-  const header_opacity = Animated.interpolateNode(diffClamp, {
-    inputRange: [0, 90],
-    outputRange: [1, 0.2],
-    extrapolate: 'clamp',
-  });
-
-  const header_color = Animated.interpolateColors(diffClamp, {
-    inputRange: [0, 1],
-    outputColorRange: ['red', 'black'],
-  });
   return (
     <DrawerStack.Navigator
       drawerContent={(props) => <DrawerContent {...props} />}
       screenOptions={{
-        header: ({ navigation }) => (
-          <Animated.View
-            style={{
-              transform: [{ translateY: header_translateY }],
-              zIndex: 10,
-              backgroundColor: header_color,
-              opacity: header_opacity,
-            }}
-          >
-            <Header navigation={navigation} />
-          </Animated.View>
-        ),
+        headerShown: false,
+
+        activeTintColor: Colors.ACTIVE,
+        inactiveTintColor: Colors.GRAY,
       }}
     >
-      <DrawerStack.Screen name="HomeDrawer" component={HomeScreen} />
+      <DrawerStack.Screen name="HomeDrawer" component={BottomTabNavigator} />
       <DrawerStack.Screen name="SearchDrawer" component={Search} />
       <DrawerStack.Screen name="ListDrawer" component={List} />
       <DrawerStack.Screen name="SettingDrawer" component={Setting} />

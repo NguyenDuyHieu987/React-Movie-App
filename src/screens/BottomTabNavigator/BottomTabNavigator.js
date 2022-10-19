@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext, useRef } from 'react';
 import { StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from '../HomeScreen';
@@ -9,9 +9,32 @@ import Search from '../Search';
 import List from '../List';
 import Setting from '../Setting/Setting';
 import DrawerNavigator from '../DrawerNavigator';
+import Animated from 'react-native-reanimated';
+import { AuthContext } from '../../store/AuthProvider';
+import Header from '../HomeScreen/Header';
 
 const BottomTab = createBottomTabNavigator();
 const BottomTabNavigator = ({ navigation }) => {
+  const { scrolly } = useContext(AuthContext);
+
+  const diffClamp = useRef(Animated.diffClamp(scrolly, 0, 90)).current;
+
+  const header_translateY = Animated.interpolateNode(diffClamp, {
+    inputRange: [0, 90],
+    outputRange: [0, -90],
+    extrapolate: 'clamp',
+  });
+
+  const header_opacity = Animated.interpolateNode(diffClamp, {
+    inputRange: [0, 90],
+    outputRange: [1, 0.2],
+    extrapolate: 'clamp',
+  });
+
+  const header_color = Animated.interpolateColors(diffClamp, {
+    inputRange: [0, 1],
+    outputColorRange: ['red', 'black'],
+  });
   return (
     <BottomTab.Navigator
       screenOptions={({ route }) => ({
@@ -60,7 +83,22 @@ const BottomTabNavigator = ({ navigation }) => {
             navigation.navigate('home');
           },
         })}
-        component={DrawerNavigator}
+        component={HomeScreen}
+        options={{
+          headerShown: true,
+          header: ({ navigation }) => (
+            <Animated.View
+              style={{
+                transform: [{ translateY: header_translateY }],
+                zIndex: 10,
+                backgroundColor: header_color,
+                opacity: header_opacity,
+              }}
+            >
+              <Header navigation={navigation} />
+            </Animated.View>
+          ),
+        }}
       />
       <BottomTab.Screen name="Search" component={Search} />
       <BottomTab.Screen name="List" component={List} />
