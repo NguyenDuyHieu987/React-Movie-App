@@ -21,6 +21,7 @@ import React, {
   Component,
   createContext,
   useCallback,
+  memo,
 } from 'react';
 import Colors from '../../constants/Colors';
 import Fonts from '../../constants/Fonts';
@@ -34,25 +35,46 @@ import Images from '../../constants/Images';
 import Constants from 'expo-constants';
 import { useFocusEffect } from '@react-navigation/native';
 import Animated, { Easing } from 'react-native-reanimated';
+import {
+  getAllGenres,
+  getAllNational,
+  getAllYear,
+} from '../../services/MovieService';
 
-const { Value, timing } = Animated;
 const { height, width } = Dimensions.get('window');
 
 const Header = ({
   navigation,
-  isVisibleYears,
-  changeYearsVisbility,
-  isVisibleGenres,
-  changeGenresVisbility,
-  setChooseGenre,
-  setActiveGenre,
-  years,
-  dataCountries,
-  chooseGenre,
-  dataGenres,
-  activeGenre,
+  // isVisibleYears,
+  // changeYearsVisbility,
+  // isVisibleGenres,
+  // changeGenresVisbility,
+  // dataYears,
+  // dataCountries,
+  // chooseGenre,
+  // dataGenres,
+  // activeGenre,
 }) => {
-  const [isTVSelected, setIsTVSelected] = useState(false);
+  const [isCountrySelected, setIsCountrySelected] = useState(false);
+  const [dataGenres, setDataGenres] = useState([]);
+  const [dataYears, setDataYears] = useState([]);
+  const [dataCountries, setDataCountries] = useState([]);
+  const [activeGenre, setActiveGenre] = useState('All');
+  const [isVisibleGenres, setIsVisibleGenres] = useState(false);
+  const [isVisibleYears, setIsVisibleYears] = useState(false);
+
+  useEffect(() => {
+    Promise.all([getAllGenres(), getAllYear(), getAllNational()])
+      .then((res) => {
+        setDataGenres(res[0].data);
+        setDataYears(res[1].data);
+        setDataCountries(res[2].data);
+      })
+      .catch((e) => {
+        if (axios.isCancel(e)) return;
+      });
+  }, []);
+
   return (
     <SafeAreaView>
       <View
@@ -81,12 +103,14 @@ const Header = ({
             opacity: 0.2,
           }}
         />
-        <Image
-          source={Images.NETFLIX}
-          style={{
-            transform: [{ scale: 1.1 }],
-          }}
-        />
+        <TouchableOpacity onPress={() => navigation.openDrawer()}>
+          <Image
+            source={Images.NETFLIX}
+            style={{
+              transform: [{ scale: 1.1 }],
+            }}
+          />
+        </TouchableOpacity>
         {/* <DropDownPicker
               open={open}
               value={null}
@@ -109,7 +133,7 @@ const Header = ({
             <TouchableOpacity
               style={{ marginRight: 5, padding: 5 }}
               onPress={() => {
-                changeYearsVisbility(!isVisibleYears);
+                setIsVisibleYears(!isVisibleYears);
               }}
             >
               <Ionicons name="filter" size={20} />
@@ -119,10 +143,10 @@ const Header = ({
               transparent={true}
               animationType="fade"
               visible={isVisibleYears}
-              onRequestClose={() => changeYearsVisbility(false)}
+              onRequestClose={() => setIsVisibleYears(false)}
             >
               <TouchableOpacity
-                onPress={() => changeYearsVisbility(false)}
+                onPress={() => setIsVisibleYears(false)}
                 style={{
                   flex: 1,
                   alignItems: 'center',
@@ -150,7 +174,7 @@ const Header = ({
                     <TouchableOpacity
                       activeOpacity={0.5}
                       onPress={() => {
-                        setIsTVSelected(false);
+                        setIsCountrySelected(false);
                       }}
                     >
                       <Text
@@ -158,7 +182,7 @@ const Header = ({
                           fontSize: 16,
                           paddingVertical: 10,
                           textAlign: 'center',
-                          color: isTVSelected
+                          color: isCountrySelected
                             ? Colors.LIGHT_GRAY
                             : Colors.BLACK,
                         }}
@@ -169,7 +193,7 @@ const Header = ({
                     <TouchableOpacity
                       activeOpacity={0.5}
                       onPress={() => {
-                        setIsTVSelected(true);
+                        setIsCountrySelected(true);
                       }}
                     >
                       <Text
@@ -178,7 +202,7 @@ const Header = ({
                           paddingVertical: 10,
                           textAlign: 'center',
                           marginLeft: 10,
-                          color: isTVSelected
+                          color: isCountrySelected
                             ? Colors.BLACK
                             : Colors.LIGHT_GRAY,
                         }}
@@ -217,7 +241,7 @@ const Header = ({
                   </ScrollView> */}
 
                   <FlatList
-                    data={!isTVSelected ? years : dataCountries}
+                    data={!isCountrySelected ? dataYears : dataCountries}
                     showsHorizontalScrollIndicator={false}
                     onEndReachedThreshold={0.5}
                     keyExtractor={(item, index) => index.toString()}
@@ -225,12 +249,14 @@ const Header = ({
                       <TouchableOpacity
                         onPress={() => {
                           navigation.navigate('movieShow', {
-                            currentMovies: 'country',
-                            title: isTVSelected
+                            currentMovies: isCountrySelected
+                              ? 'country'
+                              : 'year',
+                            title: isCountrySelected
                               ? item?.english_name
                               : item?.name,
                           });
-                          changeYearsVisbility(false);
+                          setIsVisibleYears(false);
                         }}
                         activeOpacity={0.5}
                       >
@@ -243,7 +269,7 @@ const Header = ({
                             borderWidth: 0.2,
                           }}
                         >
-                          {isTVSelected ? item?.english_name : item?.name}
+                          {isCountrySelected ? item?.english_name : item?.name}
                         </Text>
                       </TouchableOpacity>
                     )}
@@ -257,7 +283,7 @@ const Header = ({
               style={{
                 padding: 5,
               }}
-              onPress={() => changeGenresVisbility(!isVisibleGenres)}
+              onPress={() => setIsVisibleGenres(!isVisibleGenres)}
               activeOpacity={0.5}
             >
               <View
@@ -266,7 +292,7 @@ const Header = ({
                   alignItems: 'center',
                   justifyContent: 'center',
                   paddingVertical: 5,
-                  paddingHorizontal: 10,
+                  paddingHorizontal: 5,
                 }}
               >
                 <Text
@@ -276,7 +302,7 @@ const Header = ({
                     marginRight: 5,
                   }}
                 >
-                  {chooseGenre}
+                  {activeGenre}
                 </Text>
                 <Ionicons
                   name={isVisibleGenres ? 'caret-up' : 'caret-down'}
@@ -289,10 +315,10 @@ const Header = ({
               transparent={true}
               animationType="fade"
               visible={isVisibleGenres}
-              onRequestClose={() => changeGenresVisbility(false)}
+              onRequestClose={() => setIsVisibleGenres(false)}
             >
               <TouchableOpacity
-                onPress={() => changeGenresVisbility(false)}
+                onPress={() => setIsVisibleGenres(false)}
                 style={{
                   flex: 1,
                   alignItems: 'center',
@@ -331,7 +357,7 @@ const Header = ({
                             currentMovies: 'genres',
                             title: item?.name,
                           });
-                          changeGenresVisbility(false);
+                          setIsVisibleGenres(false);
                         }}
                         activeOpacity={0.5}
                       >
@@ -363,6 +389,6 @@ const Header = ({
   );
 };
 
-export default Header;
+export default memo(Header);
 
 const styles = StyleSheet.create({});

@@ -20,7 +20,7 @@ import Images from '../../constants/Images';
 // import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome, Feather, Entypo } from '@expo/vector-icons';
 import Fonts from '../../constants/Fonts';
-import { AuthContext } from '../../AuthProvider';
+import { AuthContext } from '../../store/AuthProvider';
 
 const { height, width } = Dimensions.get('window');
 
@@ -34,13 +34,13 @@ const SignIn = ({ navigation }) => {
     isValidPassword: true,
   });
 
-  const { signIn } = useContext(AuthContext);
+  const { authContext } = useContext(AuthContext);
 
   const loginHanle = (username, password) => {
     if (!data.isValidEmail || !data.isValidPassword) {
       Alert.alert('Tài khoản hoặc mật khẩu không chính xác');
     } else {
-      signIn(username, password);
+      authContext.signIn(username, password);
     }
   };
 

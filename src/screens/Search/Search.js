@@ -21,9 +21,9 @@ import {
   getMoviesTopSearch,
   getPoster,
 } from '../../services/MovieService';
-import { Ionicons, Feather } from '@expo/vector-icons';
-// import { Searchbar } from 'react-native-paper';
-import { SearchBar } from 'react-native-elements';
+import { Ionicons, Feather, FontAwesome, Fontisto } from '@expo/vector-icons';
+import { Searchbar } from 'react-native-paper';
+// import { SearchBar } from 'react-native-elements';
 import {
   useFocusEffect,
   useIsFocused,
@@ -77,7 +77,7 @@ const Search = ({ navigation }) => {
     }
     setTimeout(() => {
       setLoadingSearchBar(false);
-    }, 500);
+    }, 700);
   };
 
   useFocusEffect(
@@ -166,8 +166,12 @@ const Search = ({ navigation }) => {
       <SafeAreaView style={styles.container}>
         <Text style={styles.headerText}>Search</Text>
         <View style={styles.textInputContainer}>
-          <SearchBar
+          <Searchbar
             style={styles.textInput}
+            inputStyle={{
+              fontFamily: Fonts.REGULAR,
+              fontSize: 16,
+            }}
             placeholder="Type here..."
             onChangeText={onChangeText}
             onIconPress={handleKeyDown}
@@ -177,14 +181,22 @@ const Search = ({ navigation }) => {
             autoFocus={false}
             elevation={2}
             iconColor={Colors.ACTIVE}
-            loading={true}
+            loading={loadingSearchBar}
+            icon={() => (
+              <Fontisto name="search" size={20} color={Colors.ACTIVE} />
+            )}
+            clearIcon={() =>
+              !isFocused ? (
+                <Feather name="x" size={22} color={Colors.LIGHT_RED} />
+              ) : null
+            }
             // onClear={() => {
             //   setData([]);
             //   setLoading(true);
             //   setIsFocused(true);
             // }}
             platform="android"
-            clearIcon={true}
+            // clearIcon={true}
             searchIcon={true}
             cancelIcon={true}
             showLoading={loadingSearchBar}
@@ -264,23 +276,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 20,
-    paddingHorizontal: 10,
+    paddingHorizontal: 20,
   },
 
   textInput: {
-    paddingVertical: 7,
-    paddingLeft: 15,
+    // paddingVertical: 7,
+    // paddingLeft: 15,
     backgroundColor: Colors.EXTRA_LIGHT_GRAY,
-    fontSize: 16,
+    fontSize: 14,
     borderWidth: 0.5,
-    marginHorizontal: 10,
     borderRadius: 30,
+    paddingHorizontal: 5,
   },
 
   headerTopSearch: {
     fontSize: 20,
     fontFamily: Fonts.BOLD,
-    marginLeft: 25,
+    marginLeft: 20,
     paddingVertical: 10,
   },
 });

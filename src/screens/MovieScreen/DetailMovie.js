@@ -195,7 +195,7 @@ const DetailMovie = ({
               padding: 5,
               paddingVertical: 10,
               paddingHorizontal: 10,
-              width: 120,
+              width: 135,
               backgroundColor: Colors.EXTRA_LIGHT_GRAY,
               alignItems: 'center',
               flexDirection: 'row',
@@ -213,6 +213,7 @@ const DetailMovie = ({
                 textAlign: 'center',
                 marginRight: 10,
                 fontFamily: Fonts.REGULAR,
+                paddingLeft: 5,
               }}
             >
               {activeSeason}
@@ -260,7 +261,8 @@ const DetailMovie = ({
                   <Text
                     style={{
                       fontFamily: Fonts.REGULAR,
-                      fontSize: 16,
+                      fontSize: 15,
+                      color: Colors.LIGHT_GRAY,
                     }}
                   >
                     {item?.name}
@@ -272,7 +274,7 @@ const DetailMovie = ({
         ) : null}
 
         {isEpisodes ? (
-          <View style={{ flex: 1 }}>
+          <SafeAreaView style={{ flex: 1 }}>
             <FlatList
               nestedScrollEnabled
               style={{ maxHeight: height / 2 }}
@@ -285,7 +287,7 @@ const DetailMovie = ({
               ListFooterComponent={() => <ItemSeparator width={10} />}
               renderItem={({ item }) => <EpisodeBox item={item} />}
             />
-          </View>
+          </SafeAreaView>
         ) : null}
       </View>
 

@@ -24,6 +24,8 @@ import Fonts from '../../constants/Fonts';
 const { height, width } = Dimensions.get('window');
 
 const SignUp = ({ navigation }) => {
+  const { authContext } = useContext(authContext);
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -43,7 +45,7 @@ const SignUp = ({ navigation }) => {
           </Text>
         </Animatable.View>
       </View>
-      
+
       <View style={styles.body}>
         <View>
           <Text
@@ -141,7 +143,8 @@ const SignUp = ({ navigation }) => {
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
-              navigation.navigate('home');
+              authContext.signUp();
+              // navigation.navigate('home');
             }}
           >
             <Text style={{ fontFamily: Fonts.REGULAR, fontSize: 16 }}>

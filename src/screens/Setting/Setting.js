@@ -15,10 +15,10 @@ import Images from '../../constants/Images';
 import Fonts from '../../constants/Fonts';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import ItemSetting from './ItemSetting';
-import { AuthContext } from '../../AuthProvider';
+import { AuthContext } from '../../store/AuthProvider';
 
 const Setting = ({ navigation }) => {
-  const { signOut } = useContext(AuthContext);
+  const { authContext } = useContext(AuthContext);
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar
@@ -57,7 +57,7 @@ const Setting = ({ navigation }) => {
               {
                 text: 'OK',
                 onPress: () => {
-                  signOut();
+                  authContext.signOut();
                 },
               },
             ]);

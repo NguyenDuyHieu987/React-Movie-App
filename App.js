@@ -2,9 +2,9 @@ import React, {
   useEffect,
   useState,
   useCallback,
-  useContext,
   useMemo,
   useReducer,
+  useRef,
 } from 'react';
 import { StyleSheet, LogBox, View } from 'react-native';
 import { NavigationContainer, StackActions } from '@react-navigation/native';
@@ -19,79 +19,96 @@ import DefaultPage from './src/screens/DefaultPage';
 import { useFonts } from 'expo-font';
 import ActivityIndicator from 'expo-app-loading';
 import Colors from './src/constants/Colors';
-import Search from './src/screens/Search';
 import VideoPlayer from './src/screens/VideoPlayer';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Font from 'expo-font';
-import SignIn from './src/screens/SignIn/SignIn';
-import SignUp from './src/screens/SignUp/SignUp';
-import { AuthContext, AuthProvider } from './src/AuthProvider';
-import MainStackNavigator from './src/screens/MainStackNavigator/MainStackNavigator';
-import RootStackScreen from './src/screens/RootScreen/RootScreen';
+import { AuthContext, AuthProvider } from './src/store/AuthProvider';
+import BottomTabNavigator from './src/screens/BottomTabNavigator';
+import RootStackScreen from './src/screens/RootScreen';
+import DrawerNavigator from './src/screens/DrawerNavigator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import WellcomeScreen from './src/screens/WellcomeScreen';
-import AppLoading from 'expo-app-loading';
+import Lottie from 'lottie-react-native';
+import Animated from 'react-native-reanimated';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-SplashScreen.preventAutoHideAsync();
-
 const App = () => {
-  const [fontLoaded] = useFonts({
-    // Regular: require('./assets/fonts/NunitoSans/NunitoSans-Regular.ttf'),
-    // Bold: require('./assets/fonts/NunitoSans/NunitoSans-Bold.ttf'),
-    // Black: require('./assets/fonts/NunitoSans/NunitoSans-Black.ttf'),
-    // ExtraBold: require('./assets/fonts/NunitoSans/NunitoSans-ExtraBold.ttf'),
-    // ExtraLight: require('./assets/fonts/NunitoSans/NunitoSans-ExtraLight.ttf'),
-    // Light: require('./assets/fonts/NunitoSans/NunitoSans-Light.ttf'),
-    // SemiBold: require('./assets/fonts/NunitoSans/NunitoSans-SemiBold.ttf'),
+  // const [fontLoaded] = useFonts({
+  //   // Regular: require('./assets/fonts/NunitoSans/NunitoSans-Regular.ttf'),
+  //   // Bold: require('./assets/fonts/NunitoSans/NunitoSans-Bold.ttf'),
+  //   // Black: require('./assets/fonts/NunitoSans/NunitoSans-Black.ttf'),
+  //   // ExtraBold: require('./assets/fonts/NunitoSans/NunitoSans-ExtraBold.ttf'),
+  //   // ExtraLight: require('./assets/fonts/NunitoSans/NunitoSans-ExtraLight.ttf'),
+  //   // Light: require('./assets/fonts/NunitoSans/NunitoSans-Light.ttf'),
+  //   // SemiBold: require('./assets/fonts/NunitoSans/NunitoSans-SemiBold.ttf'),
+  //   MaterialIcons: require('./node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialIcons.ttf'),
+  //   MaterialCommunityIcons: require('./node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf'),
+  //   Regular: require('./assets/fonts/OpenSans/OpenSans-Regular.ttf'),
+  //   Bold: require('./assets/fonts/OpenSans/OpenSans-Bold.ttf'),
+  //   Black: require('./assets/fonts/OpenSans/OpenSans-Bold.ttf'),
+  //   ExtraBold: require('./assets/fonts/OpenSans/OpenSans-ExtraBold.ttf'),
+  //   ExtraLight: require('./assets/fonts/OpenSans/OpenSans-Light.ttf'),
+  //   Light: require('./assets/fonts/OpenSans/OpenSans-Light.ttf'),
+  //   SemiBold: require('./assets/fonts/OpenSans/OpenSans-SemiBold.ttf'),
 
-    Regular: require('./assets/fonts/OpenSans/OpenSans-Regular.ttf'),
-    Bold: require('./assets/fonts/OpenSans/OpenSans-Bold.ttf'),
-    Black: require('./assets/fonts/OpenSans/OpenSans-Bold.ttf'),
-    ExtraBold: require('./assets/fonts/OpenSans/OpenSans-ExtraBold.ttf'),
-    ExtraLight: require('./assets/fonts/OpenSans/OpenSans-Light.ttf'),
-    Light: require('./assets/fonts/OpenSans/OpenSans-Light.ttf'),
-    SemiBold: require('./assets/fonts/OpenSans/OpenSans-SemiBold.ttf'),
+  //   // Regular: require('./assets/fonts/Roboto/Roboto-Regular.ttf'),
+  //   // Bold: require('./assets/fonts/Roboto/Roboto-Bold.ttf'),
+  //   // Black: require('./assets/fonts/Roboto/Roboto-Black.ttf'),
+  //   // ExtraBold: require('./assets/fonts/Roboto/Roboto-Bold.ttf'),
+  //   // ExtraLight: require('./assets/fonts/Roboto/Roboto-Light.ttf'),
+  //   // Light: require('./assets/fonts/Roboto/Roboto-Light.ttf'),
+  //   // SemiBold: require('./assets/fonts/Roboto/Roboto-Bold.ttf'),
+  // });
 
-    // Regular: require('./assets/fonts/Roboto/Roboto-Regular.ttf'),
-    // Bold: require('./assets/fonts/Roboto/Roboto-Bold.ttf'),
-    // Black: require('./assets/fonts/Roboto/Roboto-Black.ttf'),
-    // ExtraBold: require('./assets/fonts/Roboto/Roboto-Bold.ttf'),
-    // ExtraLight: require('./assets/fonts/Roboto/Roboto-Light.ttf'),
-    // Light: require('./assets/fonts/Roboto/Roboto-Light.ttf'),
-    // SemiBold: require('./assets/fonts/Roboto/Roboto-Bold.ttf'),
-  });
+  const [appIsReady, setAppIsReady] = useState(false);
 
-  // const [appIsReady, setAppIsReady] = useState(false);
+  // const prepare = async () => {
+  //   await Font.loadAsync({
+  //     MaterialIcons,
+  //     MaterialCommunityIcons,
+  //   });
+  //   setAppIsReady(true);
+  // };
 
   // useEffect(() => {
-  //   async function prepare() {
-  //     try {
-  //       // await SplashScreen.preventAutoHideAsync();
-  //       await Font.loadAsync(fontLoaded);
-  //       await new Promise((resolve) => setTimeout(resolve, 2000));
-  //     } catch (e) {
-  //       console.warn(e);
-  //     } finally {
-  //       // Tell the application to render
-  //       setAppIsReady(true);
-  //     }
-  //   }
-
   //   prepare();
   // }, []);
 
-  // const onLayoutRootView = useCallback(async () => {
-  //   if (appIsReady) {
-  //     await SplashScreen.hideAsync();
-  //   }
-  // }, [appIsReady]);
+  useEffect(() => {
+    async function prepare() {
+      try {
+        await SplashScreen.preventAutoHideAsync();
+        await Font.loadAsync({
+          MaterialIcons: require('./node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialIcons.ttf'),
+          MaterialCommunityIcons: require('./node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf'),
+          Regular: require('./assets/fonts/OpenSans/OpenSans-Regular.ttf'),
+          Bold: require('./assets/fonts/OpenSans/OpenSans-Bold.ttf'),
+          Black: require('./assets/fonts/OpenSans/OpenSans-Bold.ttf'),
+          ExtraBold: require('./assets/fonts/OpenSans/OpenSans-ExtraBold.ttf'),
+          ExtraLight: require('./assets/fonts/OpenSans/OpenSans-Light.ttf'),
+          Light: require('./assets/fonts/OpenSans/OpenSans-Light.ttf'),
+          SemiBold: require('./assets/fonts/OpenSans/OpenSans-SemiBold.ttf'),
+        });
+        // await new Promise((resolve) => setTimeout(resolve, 5000));
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        // Tell the application to render
+        setTimeout(async () => {
+          setAppIsReady(true);
+        }, 3000);
+      }
+    }
 
-  // if (!appIsReady) {
-  //   return null;
-  // }
+    prepare();
+  }, []);
+
+  const onLayoutRootView = useCallback(async () => {
+    if (appIsReady) {
+      // await SplashScreen.hideAsync();
+    }
+  }, [appIsReady]);
 
   const initialLoginState = {
     isLoading: true,
@@ -130,6 +147,7 @@ const App = () => {
         };
     }
   };
+
   const [loginState, dispatch] = useReducer(loginReducer, initialLoginState);
 
   const authContext = useMemo(() => ({
@@ -160,18 +178,33 @@ const App = () => {
       // setUserToken('123');
     },
   }));
+
   useEffect(() => {
     LogBox.ignoreLogs([
       'expo-app-loading is deprecated in favor of expo-splash-screen',
     ]);
   }, []);
 
-  return fontLoaded ? (
-    <AuthContext.Provider value={authContext}>
-      <NavigationContainer>
+  const scrolly = useRef(new Animated.Value(0)).current;
+
+  if (!appIsReady) {
+    SplashScreen.hideAsync();
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <Lottie
+          source={require('./assets/animations/29313-netflix-logo-swoop.json')}
+          autoPlay
+          loop
+        />
+      </View>
+    );
+  }
+
+  return appIsReady ? (
+    <AuthContext.Provider value={{ scrolly, authContext }}>
+      <NavigationContainer onReady={onLayoutRootView}>
         {loginState.userToken !== null ? (
           <Stack.Navigator
-          // onLayout={onLayoutRootView}
 
           // screenOptions={{
           //   headerStyle: {
@@ -183,23 +216,23 @@ const App = () => {
           // }}
           >
             {/* <Stack.Screen
-                name="signin"
-                component={SignIn}
-                options={{
-                  headerShown: false,
-                }}
-              />
-              <Stack.Screen
-                name="signup"
-                component={SignUp}
-                options={{
-                  headerShown: false,
-                }}
-              /> */}
+                  name="signin"
+                  component={SignIn}
+                  options={{
+                    headerShown: false,
+                  }}
+                />
+                <Stack.Screen
+                  name="signup"
+                  component={SignUp}
+                  options={{
+                    headerShown: false,
+                  }}
+                /> */}
 
             <Stack.Screen
               name="home"
-              component={MainStackNavigator}
+              component={DrawerNavigator}
               options={{
                 headerShown: false,
               }}
@@ -257,10 +290,14 @@ const App = () => {
       </NavigationContainer>
     </AuthContext.Provider>
   ) : (
-    // <View>
-    //   <ActivityIndicator />
-    // </View>
-    <AppLoading />
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <Lottie
+        source={require('./assets/animations/29313-netflix-logo-swoop.json')}
+        autoPlay
+        loop
+      />
+    </View>
+    // <AppLoading />
   );
 };
 

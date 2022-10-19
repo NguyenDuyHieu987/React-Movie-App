@@ -20,6 +20,7 @@ import {
   getMovieSeriesById,
 } from '../../services/MovieService';
 import axios from 'axios';
+import ContentLoader, { Rect } from 'react-content-loader/native';
 
 const { height, width } = Dimensions.get('window');
 
@@ -39,6 +40,7 @@ const MovieCard = ({
   const [voteCountValue, setVoteCountValue] = useState(voteCount);
   const [isEpisodes, setIsEpisodes] = useState(false);
   const [data, setData] = useState({});
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     getMovieSeriesById(item?.id)
@@ -62,6 +64,10 @@ const MovieCard = ({
         if (axios.isCancel(e)) return;
       });
   }, [item]);
+
+  const handleOnLoad = () => {
+    setLoading(true);
+  };
 
   return (
     <TouchableOpacity
@@ -91,10 +97,10 @@ const MovieCard = ({
       >
         <View style={{ ...styles.imdbContainer, paddingVertical: 3 * size }}>
           {/* <Image
-            source={Images.IMDB}
-            resizeMode="cover"
-            style={styles.imdbImage}
-          /> */}
+              source={Images.IMDB}
+              resizeMode="cover"
+              style={styles.imdbImage}
+            /> */}
           <Text style={styles.imdbImage}>IMDb</Text>
           <Text
             style={{
@@ -187,7 +193,6 @@ const styles = StyleSheet.create({
   },
   movieTitle: {
     fontFamily: Fonts.EXTRA_BOLD,
-    color: Colors.GRAY,
     paddingVertical: 2,
     marginTop: 5,
     paddingHorizontal: 5,
@@ -199,6 +204,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   movieSubTitle: {
+    color: Colors.LIGHT_GRAY,
     fontSize: 13,
     fontFamily: Fonts.REGULAR,
     marginLeft: 5,

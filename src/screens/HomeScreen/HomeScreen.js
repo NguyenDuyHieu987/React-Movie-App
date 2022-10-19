@@ -70,7 +70,7 @@ import ListsMovies from './ListsMovies';
 import { useFocusEffect } from '@react-navigation/native';
 import Header from './Header';
 import Animated, { Easing } from 'react-native-reanimated';
-import { AuthContext } from '../../AuthProvider';
+import { AuthContext } from '../../store/AuthProvider';
 import ListMovieHorizontal from '../../components/ListMovieHorizontal/ListMovieHorizontal';
 const { height, width } = Dimensions.get('window');
 export const addContext = createContext();
@@ -102,6 +102,7 @@ const HomeScreen = ({ navigation }) => {
   const [isVisibleYears, setIsVisibleYears] = useState(false);
   const [chooseGenre, setChooseGenre] = useState('All');
   const [isEpisodes, setIsEpisodes] = useState(false);
+  const { scrolly } = useContext(AuthContext);
 
   useEffect(() => {
     getData();
@@ -177,18 +178,18 @@ const HomeScreen = ({ navigation }) => {
       getUpcomingMovies(pageUpComing),
       getPopularMovies(pagePopular),
       getTopRatedMovies(pageTopRated),
-      getAllGenres(),
-      getAllYear(),
-      getAllNational(),
+      // getAllGenres(),
+      // getAllYear(),
+      // getAllNational(),
     ])
       .then((res) => {
         setDataNowPlayingMovies(res[0].data.results);
         setDataUpcomingMovies(res[1].data.results);
         setDataPopularMovies(res[2].data.results);
         setDataTopRatedMovies(res[3].data.results);
-        setDataGenres(res[4].data);
-        setDataYears(res[5].data);
-        setDataCountries(res[6].data);
+        // setDataGenres(res[4].data);
+        // setDataYears(res[5].data);
+        // setDataCountries(res[6].data);
       })
       .catch((e) => {
         if (axios.isCancel(e)) return;
@@ -351,26 +352,26 @@ const HomeScreen = ({ navigation }) => {
     setIsVisibleYears(bool);
   }, []);
 
-  const scrolly = useRef(new Animated.Value(0)).current;
+  // const scrolly = useRef(new Animated.Value(0)).current;
 
-  const diffClamp = useRef(Animated.diffClamp(scrolly, 0, 90)).current;
+  // const diffClamp = useRef(Animated.diffClamp(scrolly, 0, 90)).current;
 
-  const header_translateY = Animated.interpolateNode(diffClamp, {
-    inputRange: [0, 90],
-    outputRange: [0, -90],
-    extrapolate: 'clamp',
-  });
+  // const header_translateY = Animated.interpolateNode(diffClamp, {
+  //   inputRange: [0, 90],
+  //   outputRange: [0, -90],
+  //   extrapolate: 'clamp',
+  // });
 
-  const header_opacity = Animated.interpolateNode(diffClamp, {
-    inputRange: [0, 90],
-    outputRange: [1, 0.2],
-    extrapolate: 'clamp',
-  });
+  // const header_opacity = Animated.interpolateNode(diffClamp, {
+  //   inputRange: [0, 90],
+  //   outputRange: [1, 0.2],
+  //   extrapolate: 'clamp',
+  // });
 
-  const header_color = Animated.interpolateColors(diffClamp, {
-    inputRange: [0, 1],
-    outputColorRange: ['red', 'black'],
-  });
+  // const header_color = Animated.interpolateColors(diffClamp, {
+  //   inputRange: [0, 1],
+  //   outputColorRange: ['red', 'black'],
+  // });
 
   return dataTrendingMoives &&
     dataUpcomingMovies != [] &&
@@ -383,7 +384,7 @@ const HomeScreen = ({ navigation }) => {
         backgroundColor="transparent"
       />
 
-      <Animated.View
+      {/* <Animated.View
         style={{
           transform: [{ translateY: header_translateY }],
           zIndex: 10,
@@ -395,18 +396,15 @@ const HomeScreen = ({ navigation }) => {
           navigation={navigation}
           dataGenres={dataGenres}
           activeGenre={activeGenre}
-          setActiveGenre={setActiveGenre}
-          years={dataYears}
+          dataYears={dataYears}
           dataCountries={dataCountries}
           chooseGenre={chooseGenre}
           isVisibleYears={isVisibleYears}
           changeYearsVisbility={changeYearsVisbility}
           isVisibleGenres={isVisibleGenres}
           changeGenresVisbility={changeGenresVisbility}
-          // handleRefresh={handleRefresh}
-          setChooseGenre={setChooseGenre}
         />
-      </Animated.View>
+      </Animated.View> */}
 
       <Animated.ScrollView
         onScroll={Animated.event([
@@ -736,7 +734,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 15,
+    paddingHorizontal: 10,
     paddingVertical: 10,
   },
   headerTitle: {
