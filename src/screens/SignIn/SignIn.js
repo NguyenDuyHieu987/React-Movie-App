@@ -154,7 +154,7 @@ const SignIn = ({ navigation }) => {
 
         <Animatable.View animation="fadeInUp">
           <TouchableOpacity
-            style={styles.button}
+            style={{ ...styles.button, marginTop: 10 }}
             onPress={() => {
               loginHanle(data.username, data.password);
               //   navigation.navigate('home');
@@ -167,7 +167,9 @@ const SignIn = ({ navigation }) => {
         </Animatable.View>
 
         <TouchableOpacity>
-          <Text style={{ alignSelf: 'center', marginVertical: 25 }}>
+          <Text
+            style={{ alignSelf: 'center', marginBottom: 25, marginTop: 15 }}
+          >
             Forgot password?
           </Text>
         </TouchableOpacity>
@@ -188,9 +190,7 @@ const SignIn = ({ navigation }) => {
               Sign in with Facebook
             </Text>
           </TouchableOpacity>
-        </Animatable.View>
 
-        <Animatable.View animation="fadeInUpBig">
           <TouchableOpacity
             style={{
               ...styles.button,
@@ -206,9 +206,7 @@ const SignIn = ({ navigation }) => {
               Sign in with Google
             </Text>
           </TouchableOpacity>
-        </Animatable.View>
 
-        <Animatable.View animation="fadeInUpBig">
           <TouchableOpacity
             style={{ ...styles.button, ...{ backgroundColor: Colors.GRAY } }}
           >

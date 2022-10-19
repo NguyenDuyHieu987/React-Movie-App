@@ -11,7 +11,7 @@ import {
   Image,
   Dimensions,
 } from 'react-native';
-import React from 'react';
+import React, { useContext } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import * as Animatable from 'react-native-animatable';
 import Colors from '../../constants/Colors';
@@ -20,11 +20,12 @@ import Images from '../../constants/Images';
 // import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome, Feather, Entypo } from '@expo/vector-icons';
 import Fonts from '../../constants/Fonts';
+import { AuthContext } from '../../store/AuthProvider';
 
 const { height, width } = Dimensions.get('window');
 
 const SignUp = ({ navigation }) => {
-  const { authContext } = useContext(authContext);
+  const { authContext } = useContext(AuthContext);
 
   return (
     <View style={styles.container}>
@@ -141,10 +142,9 @@ const SignUp = ({ navigation }) => {
 
         <Animatable.View animation="fadeInUp">
           <TouchableOpacity
-            style={styles.button}
+            style={{ ...styles.button, marginBottom: 23 }}
             onPress={() => {
               authContext.signUp();
-              // navigation.navigate('home');
             }}
           >
             <Text style={{ fontFamily: Fonts.REGULAR, fontSize: 16 }}>
@@ -175,9 +175,7 @@ const SignUp = ({ navigation }) => {
               Sign in with Facebook
             </Text>
           </TouchableOpacity>
-        </Animatable.View>
 
-        <Animatable.View animation="fadeInUpBig">
           <TouchableOpacity
             style={{
               ...styles.button,
@@ -193,9 +191,7 @@ const SignUp = ({ navigation }) => {
               Sign in with Google
             </Text>
           </TouchableOpacity>
-        </Animatable.View>
 
-        <Animatable.View animation="fadeInUpBig">
           <TouchableOpacity
             style={{ ...styles.button, ...{ backgroundColor: Colors.GRAY } }}
           >
@@ -210,10 +206,12 @@ const SignUp = ({ navigation }) => {
           style={{
             alignItems: 'center',
             justifyContent: 'center',
-            marginTop: 25,
+            marginTop: 15,
           }}
         >
-          <Text style={{ fontFamily: Fonts.REGULAR }}>Have an account?</Text>
+          <Text style={{ fontFamily: Fonts.REGULAR, fontSize: 15 }}>
+            Have an account?
+          </Text>
           <TouchableOpacity
             onPress={() => {
               navigation.navigate('signin');
