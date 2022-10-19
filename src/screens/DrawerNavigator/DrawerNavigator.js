@@ -183,7 +183,7 @@ const DrawerNavigator = () => {
         ),
       }}
     >
-      <DrawerStack.Screen name="HomeDrawer" component={BottomTabNavigator} />
+      <DrawerStack.Screen name="HomeDrawer" component={HomeScreen} />
       <DrawerStack.Screen name="SearchDrawer" component={Search} />
       <DrawerStack.Screen name="ListDrawer" component={List} />
       <DrawerStack.Screen name="SettingDrawer" component={Setting} />

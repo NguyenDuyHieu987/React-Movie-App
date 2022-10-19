@@ -232,7 +232,7 @@ const App = () => {
 
             <Stack.Screen
               name="home"
-              component={DrawerNavigator}
+              component={BottomTabNavigator}
               options={{
                 headerShown: false,
               }}

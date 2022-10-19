@@ -8,6 +8,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import Search from '../Search';
 import List from '../List';
 import Setting from '../Setting/Setting';
+import DrawerNavigator from '../DrawerNavigator';
 
 const BottomTab = createBottomTabNavigator();
 const BottomTabNavigator = ({ navigation }) => {
@@ -59,7 +60,7 @@ const BottomTabNavigator = ({ navigation }) => {
             navigation.navigate('home');
           },
         })}
-        component={HomeScreen}
+        component={DrawerNavigator}
       />
       <BottomTab.Screen name="Search" component={Search} />
       <BottomTab.Screen name="List" component={List} />
