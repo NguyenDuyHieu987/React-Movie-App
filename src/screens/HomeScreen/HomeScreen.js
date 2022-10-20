@@ -377,7 +377,7 @@ const HomeScreen = ({ navigation }) => {
     dataUpcomingMovies != [] &&
     dataPopularMovies != [] &&
     dataTopRatedMovies != [] ? (
-    <SafeAreaView style={styles.container}>
+    <ScrollView style={styles.container}>
       <StatusBar
         style="auto"
         translucent={true}
@@ -719,7 +719,7 @@ const HomeScreen = ({ navigation }) => {
           navigation={navigation}
         />
       </Animated.ScrollView>
-    </SafeAreaView>
+    </ScrollView>
   ) : (
     <AppLoading />
   );

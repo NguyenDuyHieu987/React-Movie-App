@@ -163,7 +163,7 @@ const DetailMovie = ({
           <Text
             style={{
               fontSize: 16,
-              marginLeft: 15,
+              marginLeft: 10,
               paddingVertical: 5,
               color: Colors.BLACK,
               fontFamily: Fonts.BOLD,
@@ -260,10 +260,10 @@ const DetailMovie = ({
       </View>
 
       {isEpisodes ? (
-        <ScrollView
-          style={{ flex: 1, maxHeight: height / 2 }}
-          showsVerticalScrollIndicator={false}
-          nestedScrollEnabled
+        <View
+          style={{ flex: 1, marginTop: 10 }}
+          // showsVerticalScrollIndicator={false}
+          // nestedScrollEnabled
         >
           <FlatList
             nestedScrollEnabled
@@ -278,14 +278,14 @@ const DetailMovie = ({
             renderItem={({ item }) => <EpisodeBox item={item} />}
           />
           {/* {dataSeason?.episodes?.map((item, index) => (
-            <View key={index.toString()} style={{}}>
-              <EpisodeBox item={item} />
-            </View>
-          ))} */}
-        </ScrollView>
+              <View key={index.toString()} style={{}}>
+                <EpisodeBox item={item} />
+              </View>
+            ))} */}
+        </View>
       ) : null}
 
-      <View>
+      <View style={{ marginTop: 10 }}>
         <View style={styles.castSubMenuContainer}>
           <TouchableOpacity
             activeOpacity={0.5}
@@ -376,7 +376,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 15,
+    paddingHorizontal: 10,
     marginTop: 10,
   },
   movieTitle: {
@@ -409,14 +409,14 @@ const styles = StyleSheet.create({
   },
   genreText: {
     color: Colors.LIGHT_GRAY,
-    paddingHorizontal: 15,
+    paddingHorizontal: 10,
     marginTop: 5,
     fontFamily: Fonts.REGULAR,
     fontSize: 14,
   },
   overViewContainer: {
     color: Colors.LIGHT_GRAY,
-    paddingHorizontal: 15,
+    paddingHorizontal: 10,
     paddingVertical: 10,
     marginVertical: 10,
   },
@@ -432,14 +432,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'justify',
   },
-  castTitle: {
-    marginLeft: 20,
-    color: Colors.BLACK,
-    fontFamily: Fonts.BOLD,
-    fontSize: 18,
-  },
   castSubMenuContainer: {
-    marginLeft: 20,
+    marginLeft: 10,
     flexDirection: 'row',
     marginVertical: 5,
   },
@@ -450,7 +444,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   extraListTitle: {
-    marginLeft: 20,
+    marginLeft: 10,
     color: Colors.BLACK,
     fontFamily: Fonts.BOLD,
     fontSize: 18,

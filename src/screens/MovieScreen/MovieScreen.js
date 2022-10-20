@@ -100,14 +100,6 @@ const MovieScreen = ({ movieId, route, navigation, item }) => {
         if (axios.isCancel(e)) return;
       });
 
-    getMovieByCredit(isEpisodes ? 'tv' : 'movie', route.params.movieId)
-      .then((movieRespone) => {
-        setDataCredits(movieRespone?.data);
-      })
-      .catch((e) => {
-        if (axios.isCancel(e)) return;
-      });
-
     // getMovieByRecommend(
     //   isEpisodes ? 'tv' : 'movie',
     //   route.params.movieId,
@@ -165,6 +157,16 @@ const MovieScreen = ({ movieId, route, navigation, item }) => {
         });
     }
   }, [dataMovies.genres]);
+
+  useEffect(() => {
+    getMovieByCredit(isEpisodes ? 'tv' : 'movie', route.params.movieId)
+      .then((movieRespone) => {
+        setDataCredits(movieRespone?.data);
+      })
+      .catch((e) => {
+        if (axios.isCancel(e)) return;
+      });
+  }, [isEpisodes]);
 
   const handleEndReachedRecommendations = useCallback(() => {
     setPageRecommended(pageRecommended + 1);
