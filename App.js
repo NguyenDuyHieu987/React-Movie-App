@@ -23,7 +23,6 @@ import VideoPlayer from './src/screens/VideoPlayer';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Font from 'expo-font';
 import { AuthContext, AuthProvider } from './src/store/AuthProvider';
-import BottomTabNavigator from './src/screens/BottomTabNavigator';
 import RootStackScreen from './src/screens/RootScreen';
 import DrawerNavigator from './src/screens/DrawerNavigator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -183,6 +182,7 @@ const App = () => {
     LogBox.ignoreLogs([
       'expo-app-loading is deprecated in favor of expo-splash-screen',
     ]);
+    LogBox.ignoreLogs(['Require cycle:']);
   }, []);
 
   const scrolly = useRef(new Animated.Value(0)).current;

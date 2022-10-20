@@ -134,6 +134,7 @@ const Header = ({
               style={{ marginRight: 5, padding: 5 }}
               onPress={() => {
                 setIsVisibleYears(!isVisibleYears);
+                setIsCountrySelected(false);
               }}
             >
               <Ionicons name="filter" size={20} />
@@ -259,14 +260,17 @@ const Header = ({
                           setIsVisibleYears(false);
                         }}
                         activeOpacity={0.5}
+                        style={{
+                          borderTopColor: Colors.LIGHT_GRAY,
+                          borderWidth: 0.2,
+                        }}
                       >
                         <Text
                           style={{
                             fontSize: 15,
                             fontFamily: Fonts.REGULAR,
                             paddingVertical: 15,
-                            borderTopColor: Colors.LIGHT_GRAY,
-                            borderWidth: 0.2,
+                            marginLeft: 15,
                           }}
                         >
                           {isCountrySelected ? item?.english_name : item?.name}
@@ -360,18 +364,18 @@ const Header = ({
                           setIsVisibleGenres(false);
                         }}
                         activeOpacity={0.5}
+                        style={{
+                          borderTopColor: Colors.LIGHT_GRAY,
+                          borderWidth: 0.2,
+                        }}
                       >
                         <Text
                           style={{
                             fontSize: 15,
                             fontFamily: Fonts.REGULAR,
                             paddingVertical: 15,
-                            borderTopColor: Colors.LIGHT_GRAY,
-                            borderWidth: 0.2,
-                            color:
-                              activeGenre === item.name
-                                ? Colors.ACTIVE
-                                : Colors.WHITE,
+                            color: Colors.WHITE,
+                            marginLeft: 15,
                           }}
                         >
                           {item.name}

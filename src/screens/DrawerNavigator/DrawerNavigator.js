@@ -26,11 +26,13 @@ import BottomTabNavigator from '../BottomTabNavigator';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { AuthContext } from '../../store/AuthProvider';
 import Images from '../../constants/Images';
+import { useRoute } from '@react-navigation/native';
 
 const DrawerStack = createDrawerNavigator();
 const DrawerContent = (props, { navigation }) => {
   const { authContext } = useContext(AuthContext);
   const [isSwitchOn, setIsSwitchOn] = useState(true);
+  const route = useRoute();
 
   return (
     <View style={{ flex: 1, backgroundColor: Colors.BLACK }}>
@@ -64,11 +66,18 @@ const DrawerContent = (props, { navigation }) => {
           <Drawer.Section style={styles.drawerSection}>
             <DrawerItem
               icon={({ color, size }) => (
-                <Icon name="home-outline" color={color} size={size} />
+                <Icon
+                  name="home-outline"
+                  color={route.name === 'home' ? Colors.ACTIVE : color}
+                  size={size}
+                />
               )}
               label="Home"
               onPress={() => {
                 props.navigation.navigate('home');
+              }}
+              labelStyle={{
+                color: route.name === 'home' ? Colors.ACTIVE : null,
               }}
             />
             <DrawerItem
@@ -145,11 +154,12 @@ const DrawerContent = (props, { navigation }) => {
 const DrawerNavigator = () => {
   return (
     <DrawerStack.Navigator
+      initialRouteName="home"
       drawerContent={(props) => <DrawerContent {...props} />}
       screenOptions={{
         headerShown: false,
-
         activeTintColor: Colors.ACTIVE,
+        activeBackgroundColor: Colors.ACTIVE,
         inactiveTintColor: Colors.GRAY,
       }}
     >
@@ -164,6 +174,7 @@ const DrawerNavigator = () => {
 const styles = StyleSheet.create({
   drawerContent: {
     flex: 1,
+    marginTop: 20,
   },
   userInfoSection: {
     paddingLeft: 20,
@@ -196,16 +207,16 @@ const styles = StyleSheet.create({
   drawerSection: {
     marginTop: 15,
   },
-  bottomDrawerSection: {
-    marginBottom: 15,
-    borderTopColor: '#f4f4f4',
-    borderTopWidth: 1,
-  },
   preference: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: 12,
     paddingHorizontal: 16,
+  },
+  bottomDrawerSection: {
+    marginBottom: 25,
+    borderTopColor: '#f4f4f4',
+    borderTopWidth: 1,
   },
 });
 

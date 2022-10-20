@@ -8,7 +8,6 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import Search from '../Search';
 import List from '../List';
 import Setting from '../Setting/Setting';
-import DrawerNavigator from '../DrawerNavigator';
 import Animated from 'react-native-reanimated';
 import { AuthContext } from '../../store/AuthProvider';
 import Header from '../HomeScreen/Header';

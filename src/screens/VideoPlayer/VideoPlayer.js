@@ -67,7 +67,8 @@ const VideoPlayer = ({ route, navigation }) => {
         play={true}
         videoId={
           !data.videos?.results[0]?.key
-            ? 'eEKfWVvADiQ'
+            ? // 'eEKfWVvADiQ'
+              'PKEc-PcNZSk&lis'
             : data.videos.results[0].key
         }
         // onChangeState={onStateChange}

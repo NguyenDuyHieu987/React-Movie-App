@@ -49,25 +49,6 @@ const DetailMovie = ({
   loadingSimilar,
   isEpisodes,
 }) => {
-  const [isVisibleDropDownEpisodes, setIsvisibleDropDownEpisodes] =
-    useState(false);
-  const renderFooter = (size) => {
-    return (
-      <View
-        style={{
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: 210 * size,
-          marginHorizontal: 5,
-        }}
-      >
-        <View>
-          <ActivityIndicator size="small" />
-          <Text>Loading...</Text>
-        </View>
-      </View>
-    );
-  };
   const [dataSeason, setDataSeason] = useState({});
   const [numberOfSeasons, setNumberOfSeasons] = useState(
     dataMovies?.last_episode_to_air?.season_number
@@ -139,8 +120,11 @@ const DetailMovie = ({
             ) : (
               <Text style={styles.labelText}>Run time per episode: </Text>
             )}
-            {dataMovies?.episode_run_time === undefined
-              ? dataMovies?.runtime + ' Min'
+            {dataMovies?.episode_run_time === undefined ||
+            dataMovies?.episode_run_time[0] == undefined
+              ? dataMovies?.runtime === undefined
+                ? '' + ' Min'
+                : dataMovies?.runtime + ' Min'
               : dataMovies?.episode_run_time[0] + ' Min'}
           </Text>
           <Text style={styles.genreText}>
@@ -174,7 +158,7 @@ const DetailMovie = ({
         <Text style={styles.overViewTitle}>Overview</Text>
         <Text style={styles.overViewText}>{dataMovies?.overview}</Text>
       </View>
-      {isEpisodes === true ? (
+      {isEpisodes ? (
         <View>
           <Text
             style={{
@@ -222,6 +206,7 @@ const DetailMovie = ({
           </TouchableOpacity>
         </View>
       ) : null}
+
       <View>
         {open ? (
           <View
@@ -272,24 +257,33 @@ const DetailMovie = ({
             </ScrollView>
           </View>
         ) : null}
-
-        {isEpisodes ? (
-          <SafeAreaView style={{ flex: 1 }}>
-            <FlatList
-              nestedScrollEnabled
-              style={{ maxHeight: height / 2 }}
-              contentContainerStyle={{ flexGrow: 1 }}
-              data={dataSeason.episodes}
-              keyExtractor={(item, index) => index.toString()}
-              showsVerticalScrollIndicator={false}
-              ItemSeparatorComponent={() => <ItemSeparator width={15} />}
-              ListHeaderComponent={() => <ItemSeparator width={10} />}
-              ListFooterComponent={() => <ItemSeparator width={10} />}
-              renderItem={({ item }) => <EpisodeBox item={item} />}
-            />
-          </SafeAreaView>
-        ) : null}
       </View>
+
+      {isEpisodes ? (
+        <ScrollView
+          style={{ flex: 1, maxHeight: height / 2 }}
+          showsVerticalScrollIndicator={false}
+          nestedScrollEnabled
+        >
+          <FlatList
+            nestedScrollEnabled
+            style={{ maxHeight: height / 2 }}
+            contentContainerStyle={{ flexGrow: 1 }}
+            data={dataSeason.episodes}
+            keyExtractor={(item, index) => index.toString()}
+            showsVerticalScrollIndicator={false}
+            ItemSeparatorComponent={() => <ItemSeparator width={15} />}
+            ListHeaderComponent={() => <ItemSeparator width={10} />}
+            ListFooterComponent={() => <ItemSeparator width={10} />}
+            renderItem={({ item }) => <EpisodeBox item={item} />}
+          />
+          {/* {dataSeason?.episodes?.map((item, index) => (
+            <View key={index.toString()} style={{}}>
+              <EpisodeBox item={item} />
+            </View>
+          ))} */}
+        </ScrollView>
+      ) : null}
 
       <View>
         <View style={styles.castSubMenuContainer}>
