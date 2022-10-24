@@ -16,9 +16,11 @@ import Fonts from '../../constants/Fonts';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import ItemSetting from './ItemSetting';
 import { AuthContext } from '../../store/AuthProvider';
+import { getAvatar } from '../../services/MovieService';
 
 const Setting = ({ navigation }) => {
-  const { authContext } = useContext(AuthContext);
+  const { authContext, user } = useContext(AuthContext);
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar
@@ -29,11 +31,17 @@ const Setting = ({ navigation }) => {
       <View style={styles.avatarContainer}>
         <Image
           style={styles.avatar}
-          source={Images.ACCOUNT}
+          source={
+            user?.avatar?.length <= 3
+              ? {
+                  uri: `https://the-movie-node.onrender.com/image/account/${user?.avatar}?api=hieu987`,
+                }
+              : { uri: user?.avatar }
+          }
           resizeMode="cover"
         />
         <Text style={styles.userName} numberOfLines={2}>
-          DuyHieu987
+          {user.user_name}
         </Text>
       </View>
       <View style={styles.itemSettingContainer}>
@@ -47,7 +55,7 @@ const Setting = ({ navigation }) => {
           activeOpacity={111}
           underlayColor={Colors.GRAY}
           onPress={() => {
-            Alert.alert('Thông Báo', 'Bạn có chắc chắn muốn xóa không?', [
+            Alert.alert('Thông Báo', 'Bạn có chắc chắn muốn đăng xuất không?', [
               {
                 text: 'Cancel',
                 onPress: () => {

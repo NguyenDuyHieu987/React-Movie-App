@@ -21,59 +21,105 @@ import Images from '../../constants/Images';
 import { FontAwesome, Feather, Entypo } from '@expo/vector-icons';
 import Fonts from '../../constants/Fonts';
 import { AuthContext } from '../../store/AuthProvider';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { height, width } = Dimensions.get('window');
 
 const SignIn = ({ navigation }) => {
   const [data, setData] = useState({
-    username: '',
+    email: '',
     password: '',
-    check_textInputChange: false,
     secureTextEntry: true,
     isValidEmail: true,
     isValidPassword: true,
   });
 
-  const { authContext } = useContext(AuthContext);
+  const {
+    authContext,
+    messageEmailError,
+    setMessageEmailError,
+    messagePasswordError,
+    setMessagePasswordError,
+  } = useContext(AuthContext);
 
-  const loginHanle = (username, password) => {
-    if (!data.isValidEmail || !data.isValidPassword) {
-      Alert.alert('Tài khoản hoặc mật khẩu không chính xác');
-    } else {
-      authContext.signIn(username, password);
+  const loginHanle = (email, password) => {
+    if (!data.isValidEmail && messageEmailError != '* Email is not exist') {
+      setMessageEmailError('* Wrong email format');
+    }
+
+    if (!data.isValidPassword) {
+      setMessagePasswordError('* Please enter a valid password');
+    }
+
+    if (data.isValidEmail && data.isValidPassword) {
+      authContext.signIn(email, password);
+      setMessagePasswordError('');
+      setMessageEmailError('');
+    }
+
+    if (messageEmailError != '') {
+      setData({
+        ...data,
+        isValidEmail: false,
+      });
+    }
+
+    if (messagePasswordError != '') {
+      setData({
+        ...data,
+        isValidPassword: false,
+      });
     }
   };
 
-  handleOnChangeEmail = (text) => {
+  const handleOnChangeEmail = (text) => {
     var regex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
     if (regex.test(text) && text.trim().length >= 0) {
       setData({
         ...data,
-        username: text,
+        email: text,
         isValidEmail: true,
       });
+      setMessageEmailError('');
     } else {
       setData({
         ...data,
-        username: text,
+        email: text,
         isValidEmail: false,
       });
     }
   };
 
-  handleOnChangePassword = (text) => {
-    if (text.trim().length >= 0) {
+  const handleOnblurEmail = () => {
+    if (!data.isValidEmail) {
+      setMessageEmailError('* Wrong email format');
+    } else {
+      setMessageEmailError('');
+    }
+  };
+
+  const handleOnChangePassword = (text) => {
+    if (text.trim().length >= 3) {
       setData({
         ...data,
         password: text,
         isValidPassword: true,
       });
+      setMessagePasswordError('');
     } else {
       setData({
         ...data,
         password: text,
         isValidPassword: false,
       });
+    }
+  };
+
+  const handleOnblurPassword = () => {
+    if (!data.isValidPassword) {
+      setMessagePasswordError('* Please enter a valid password');
+    } else {
+      setMessagePasswordError('');
     }
   };
 
@@ -98,14 +144,16 @@ const SignIn = ({ navigation }) => {
           >
             Email
           </Text>
+
           <View
             style={
-              data.isValidEmail
-                ? styles.inputContainer
-                : {
+              (!data.isValidEmail && messageEmailError !== '') ||
+              messageEmailError == '* Email is not exist'
+                ? {
                     ...styles.inputContainer,
                     ...{ borderBottomColor: Colors.RED },
                   }
+                : styles.inputContainer
             }
           >
             <Entypo name="email" size={16} color="black" />
@@ -116,8 +164,21 @@ const SignIn = ({ navigation }) => {
               onChangeText={(text) => {
                 handleOnChangeEmail(text);
               }}
+              onBlur={handleOnblurEmail}
             />
           </View>
+          {(!data.isValidEmail && messageEmailError !== '') ||
+          messageEmailError == '* Email is not exist' ? (
+            <Text
+              style={{
+                marginTop: 10,
+                fontFamily: Fonts.REGULAR,
+                color: Colors.LIGHT_RED,
+              }}
+            >
+              {messageEmailError}
+            </Text>
+          ) : null}
         </View>
 
         <View>
@@ -132,12 +193,15 @@ const SignIn = ({ navigation }) => {
             Password
           </Text>
           <View
-            style={{
-              ...styles.inputContainer,
-              ...{
-                marginBottom: 25,
-              },
-            }}
+            style={
+              (!data.isValidPassword && messagePasswordError !== '') ||
+              messagePasswordError == '* Wrong password'
+                ? {
+                    ...styles.inputContainer,
+                    ...{ borderBottomColor: Colors.RED },
+                  }
+                : styles.inputContainer
+            }
           >
             <Feather name="lock" size={16} color="black" />
             <TextInput
@@ -148,15 +212,28 @@ const SignIn = ({ navigation }) => {
               onChangeText={(text) => {
                 handleOnChangePassword(text);
               }}
+              onBlur={handleOnblurPassword}
             />
           </View>
+          {(!data.isValidPassword && messagePasswordError !== '') ||
+          messagePasswordError == '* Wrong password' ? (
+            <Text
+              style={{
+                marginTop: 10,
+                fontFamily: Fonts.REGULAR,
+                color: Colors.LIGHT_RED,
+              }}
+            >
+              {messagePasswordError}
+            </Text>
+          ) : null}
         </View>
 
         <Animatable.View animation="fadeInUp">
           <TouchableOpacity
-            style={{ ...styles.button, marginTop: 10 }}
+            style={{ ...styles.button, marginTop: 35 }}
             onPress={() => {
-              loginHanle(data.username, data.password);
+              loginHanle(data.email, data.password);
               //   navigation.navigate('home');
             }}
           >
@@ -266,6 +343,7 @@ const styles = StyleSheet.create({
   },
   input: {
     marginLeft: 10,
+    width: width,
   },
   button: {
     backgroundColor: Colors.LIGHT_BLACK,

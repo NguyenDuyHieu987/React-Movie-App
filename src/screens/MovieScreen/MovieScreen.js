@@ -13,8 +13,15 @@ import {
   TouchableNativeFeedback,
   Button,
   SafeAreaView,
+  ActivityIndicator,
 } from 'react-native';
-import React, { Component, useCallback, useEffect, useState } from 'react';
+import React, {
+  Component,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import Colors from '../../constants/Colors';
 import { LinearGradient } from 'expo-linear-gradient';
 import Fonts from '../../constants/Fonts';
@@ -42,6 +49,7 @@ import axios from 'axios';
 import Images from '../../constants/Images';
 import DetailMovie from './DetailMovie';
 import ContentLoader from 'react-content-loader/native';
+import { AuthContext } from '../../store/AuthProvider';
 
 const { height, width } = Dimensions.get('window');
 
@@ -66,6 +74,8 @@ const MovieScreen = ({ movieId, route, navigation, item }) => {
   const [loadingRecommended, setLoadingRecommended] = useState(false);
   const [loadingSimilar, setLoadingSimilar] = useState(false);
   const [isEpisodes, setIsEpisodes] = useState(false);
+  const { user } = useContext(AuthContext);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     getData();
@@ -79,6 +89,7 @@ const MovieScreen = ({ movieId, route, navigation, item }) => {
             .then((movieResponed) => {
               setIsEpisodes(false);
               setDataMovies(movieResponed?.data);
+              setLoading(true);
             })
             .catch((e) => {
               if (axios.isCancel(e)) return;
@@ -86,13 +97,14 @@ const MovieScreen = ({ movieId, route, navigation, item }) => {
         else {
           setIsEpisodes(true);
           setDataMovies(tvResponed?.data);
+          setLoading(true);
         }
       })
       .catch((e) => {
         if (axios.isCancel(e)) return;
       });
 
-    getList()
+    getList(user?.id)
       .then((movieRespone) => {
         setDataList(movieRespone?.data.items);
       })
@@ -323,7 +335,7 @@ const MovieScreen = ({ movieId, route, navigation, item }) => {
                   //     media_id: route.params.movieId,
                   //   }
                   // );
-                  addItemList({
+                  addItemList(user?.id, {
                     media_type: isEpisodes ? 'tv' : 'movie',
                     media_id: +route.params.movieId,
                   });
@@ -335,7 +347,7 @@ const MovieScreen = ({ movieId, route, navigation, item }) => {
                   //     media_id: route.params.movieId,
                   //   }
                   // );
-                  removeItemList({
+                  removeItemList(user?.id, {
                     media_id: +route.params.movieId,
                   });
                   setCheckisInList('add');
@@ -347,20 +359,39 @@ const MovieScreen = ({ movieId, route, navigation, item }) => {
             <Text style={{ fontFamily: Fonts.REGULAR }}>List</Text>
           </View>
         </View>
-        <DetailMovie
-          navigation={navigation}
-          dataMovies={dataMovies}
-          dataCredits={dataCredits}
-          dataRecommend={dataRecommend}
-          dataSimiLar={dataSimiLar}
-          isCastSelected={isCastSelected}
-          setIsCastSelected={setIsCastSelected}
-          handleEndReachedRecommendations={handleEndReachedRecommendations}
-          handleEndReachedSimiLar={handleEndReachedSimiLar}
-          loadingRecommended={loadingRecommended}
-          loadingSimilar={loadingSimilar}
-          isEpisodes={isEpisodes}
-        />
+
+        {loading ? (
+          <DetailMovie
+            navigation={navigation}
+            dataMovies={dataMovies}
+            dataCredits={dataCredits}
+            dataRecommend={dataRecommend}
+            dataSimiLar={dataSimiLar}
+            isCastSelected={isCastSelected}
+            setIsCastSelected={setIsCastSelected}
+            handleEndReachedRecommendations={handleEndReachedRecommendations}
+            handleEndReachedSimiLar={handleEndReachedSimiLar}
+            loadingRecommended={loadingRecommended}
+            loadingSimilar={loadingSimilar}
+            isEpisodes={isEpisodes}
+          />
+        ) : (
+          <View
+            style={{
+              flex: 1,
+              height: height / 1.7,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: Colors.BLACK,
+            }}
+          >
+            <ActivityIndicator
+              size="large"
+              color={Colors.RED}
+              style={{ transform: [{ scale: 1 }] }}
+            />
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

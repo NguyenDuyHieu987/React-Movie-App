@@ -1,4 +1,10 @@
-import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { ViewPropTypes } from 'deprecated-react-native-prop-types';
 import React, { useEffect, useState, memo } from 'react';
 import { StatusBar } from 'expo-status-bar';
@@ -6,11 +12,13 @@ import YoutubePlayer from 'react-native-youtube-iframe';
 import { getMovieById, getMovieSeriesById } from '../../services/MovieService';
 import AppLoading from 'expo-app-loading';
 import * as ScreenOrientation from 'expo-screen-orientation';
+import Colors from '../../constants/Colors';
 
 const VideoPlayer = ({ route, navigation }) => {
   const [data, setData] = useState({});
   const [orientationIsLandscape, setOrientation] = useState(false);
   const [isEpisodes, setIsEpisodes] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (route.params?.movieId) {
@@ -21,6 +29,7 @@ const VideoPlayer = ({ route, navigation }) => {
               .then((movieResponed) => {
                 setIsEpisodes(false);
                 setData(movieResponed?.data);
+                setLoading(true);
               })
               .catch((e) => {
                 if (axios.isCancel(e)) return;
@@ -28,6 +37,7 @@ const VideoPlayer = ({ route, navigation }) => {
           else {
             setIsEpisodes(true);
             setData(tvResponed?.data);
+            setLoading(true);
           }
         })
         .catch((e) => {
@@ -36,6 +46,7 @@ const VideoPlayer = ({ route, navigation }) => {
     } else {
       setData(route.params.dataMovie);
       setIsEpisodes(route.params.isEpisodes);
+      setLoading(true);
     }
   }, []);
 
@@ -52,7 +63,7 @@ const VideoPlayer = ({ route, navigation }) => {
     changeScreenOrientation();
   };
 
-  return data?.videos ? (
+  return loading ? (
     <SafeAreaView>
       {/* <VideoPlayer
           video={{
@@ -76,7 +87,20 @@ const VideoPlayer = ({ route, navigation }) => {
       />
     </SafeAreaView>
   ) : (
-    <AppLoading />
+    <View
+      style={{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: Colors.BLACK,
+      }}
+    >
+      <ActivityIndicator
+        size="large"
+        color={Colors.RED}
+        style={{ transform: [{ scale: 1.5 }] }}
+      />
+    </View>
   );
 };
 

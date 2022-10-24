@@ -11,7 +11,7 @@ import {
   Image,
   Dimensions,
 } from 'react-native';
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import * as Animatable from 'react-native-animatable';
 import Colors from '../../constants/Colors';
@@ -25,7 +25,174 @@ import { AuthContext } from '../../store/AuthProvider';
 const { height, width } = Dimensions.get('window');
 
 const SignUp = ({ navigation }) => {
-  const { authContext } = useContext(AuthContext);
+  const [data, setData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    repassword: '',
+    secureTextEntry: true,
+    isValidEsername: true,
+    isValidEmail: true,
+    isValidPassword: true,
+    isValidRePassword: true,
+  });
+
+  const {
+    authContext,
+    messageEmailError,
+    setMessageEmailError,
+    messagePasswordError,
+    setMessagePasswordError,
+  } = useContext(AuthContext);
+
+  const [messageUsernameError, setMessageUsernameError] = useState('');
+  const [messageRePasswordError, setMessageRePasswordError] = useState('');
+
+  const signUpHanle = (username, email, password, repassword) => {
+    if (!data.isValidEsername) {
+      setMessageUsernameError('* Please enter a least 6 character');
+    }
+
+    if (!data.isValidEmail && messageEmailError != '* Email is already exist') {
+      setMessageEmailError('* Wrong email format');
+    }
+
+    if (!data.isValidPassword) {
+      setMessagePasswordError('* Please enter a least 3 character');
+    }
+
+    if (!data.isValidRePassword) {
+      setMessageRePasswordError('* Password is not match');
+    }
+
+    if (
+      data.isValidEsername &&
+      data.isValidEmail &&
+      data.isValidPassword &&
+      data.isValidRePassword
+    ) {
+      authContext.signUp(username, email, password, repassword);
+      setMessageUsernameError('');
+      setMessageEmailError('');
+      setMessagePasswordError('');
+      setMessageRePasswordError('');
+    }
+
+    if (messageEmailError != '') {
+      setData({
+        ...data,
+        isValidEmail: false,
+      });
+    }
+
+    if (messagePasswordError != '') {
+      setData({
+        ...data,
+        isValidPassword: false,
+      });
+    }
+  };
+
+  const handleOnChangeUsername = (text) => {
+    if (text.trim().length >= 6) {
+      setData({
+        ...data,
+        username: text,
+        isValidEsername: true,
+      });
+      setMessageUsernameError('');
+    } else {
+      setData({
+        ...data,
+        username: text,
+        isValidEsername: false,
+      });
+    }
+  };
+
+  const handleOnblurUsername = () => {
+    if (!data.isValidEsername) {
+      setMessageUsernameError('* Please enter a least 6 character');
+    } else {
+      setMessageUsernameError('');
+    }
+  };
+
+  const handleOnChangeEmail = (text) => {
+    var regex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    if (regex.test(text) && text.trim().length >= 0) {
+      setData({
+        ...data,
+        email: text,
+        isValidEmail: true,
+      });
+      setMessageEmailError('');
+    } else {
+      setData({
+        ...data,
+        email: text,
+        isValidEmail: false,
+      });
+    }
+  };
+
+  const handleOnblurEmail = () => {
+    if (!data.isValidEmail) {
+      setMessageEmailError('* Wrong email format');
+    } else {
+      setMessageEmailError('');
+    }
+  };
+
+  const handleOnChangePassword = (text) => {
+    if (text.trim().length >= 3) {
+      setData({
+        ...data,
+        password: text,
+        isValidPassword: true,
+      });
+      setMessagePasswordError('');
+    } else {
+      setData({
+        ...data,
+        password: text,
+        isValidPassword: false,
+      });
+    }
+  };
+
+  const handleOnblurPassword = () => {
+    if (!data.isValidPassword) {
+      setMessagePasswordError('* Please enter least 3 character');
+    } else {
+      setMessagePasswordError('');
+    }
+  };
+
+  const handleOnChangeRePassword = (text) => {
+    if (data.password == text) {
+      setData({
+        ...data,
+        repassword: text,
+        isValidRePassword: true,
+      });
+      setMessageRePasswordError('');
+    } else {
+      setData({
+        ...data,
+        repassword: text,
+        isValidRePassword: false,
+      });
+    }
+  };
+
+  const handleOnblurRePassword = () => {
+    if (!data.isValidRePassword) {
+      setMessageRePasswordError('* Password is not match');
+    } else {
+      setMessageRePasswordError('');
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -58,14 +225,36 @@ const SignUp = ({ navigation }) => {
           >
             Your name
           </Text>
-          <View style={styles.inputContainer}>
+          <View
+            style={
+              !data.isValidEsername && messageUsernameError !== ''
+                ? {
+                    ...styles.inputContainer,
+                    ...{ borderBottomColor: Colors.RED },
+                  }
+                : styles.inputContainer
+            }
+          >
             <Entypo name="email" size={16} color="black" />
             <TextInput
               style={styles.input}
               placeholder="Username"
               placeholderTextColor={Colors.GRAY}
+              onChangeText={(text) => handleOnChangeUsername(text)}
+              onBlur={handleOnblurUsername}
             />
           </View>
+          {!data.isValidEsername && messageUsernameError !== '' ? (
+            <Text
+              style={{
+                marginTop: 10,
+                fontFamily: Fonts.REGULAR,
+                color: Colors.LIGHT_RED,
+              }}
+            >
+              {messageUsernameError}
+            </Text>
+          ) : null}
         </View>
 
         <View>
@@ -79,14 +268,38 @@ const SignUp = ({ navigation }) => {
           >
             Email
           </Text>
-          <View style={styles.inputContainer}>
+          <View
+            style={
+              (!data.isValidEmail && messageEmailError !== '') ||
+              messageEmailError == '* Email is already exist'
+                ? {
+                    ...styles.inputContainer,
+                    ...{ borderBottomColor: Colors.RED },
+                  }
+                : styles.inputContainer
+            }
+          >
             <Entypo name="email" size={16} color="black" />
             <TextInput
               style={styles.input}
               placeholder="Your Email"
               placeholderTextColor={Colors.GRAY}
+              onChangeText={(text) => handleOnChangeEmail(text)}
+              onBlur={handleOnblurEmail}
             />
           </View>
+          {(!data.isValidEmail && messageEmailError !== '') ||
+          messageEmailError == '* Email is already exist' ? (
+            <Text
+              style={{
+                marginTop: 10,
+                fontFamily: Fonts.REGULAR,
+                color: Colors.LIGHT_RED,
+              }}
+            >
+              {messageEmailError}
+            </Text>
+          ) : null}
         </View>
 
         <View>
@@ -100,15 +313,37 @@ const SignUp = ({ navigation }) => {
           >
             Password
           </Text>
-          <View style={styles.inputContainer}>
+          <View
+            style={
+              !data.isValidPassword && messagePasswordError !== ''
+                ? {
+                    ...styles.inputContainer,
+                    ...{ borderBottomColor: Colors.RED },
+                  }
+                : styles.inputContainer
+            }
+          >
             <Feather name="lock" size={16} color="black" />
             <TextInput
               style={styles.input}
               placeholder="Your Password"
               placeholderTextColor={Colors.GRAY}
               secureTextEntry={true}
+              onChangeText={(text) => handleOnChangePassword(text)}
+              onBlur={handleOnblurPassword}
             />
           </View>
+          {!data.isValidPassword && messagePasswordError !== '' ? (
+            <Text
+              style={{
+                marginTop: 10,
+                fontFamily: Fonts.REGULAR,
+                color: Colors.LIGHT_RED,
+              }}
+            >
+              {messagePasswordError}
+            </Text>
+          ) : null}
         </View>
 
         <View>
@@ -123,12 +358,21 @@ const SignUp = ({ navigation }) => {
             Confirm password
           </Text>
           <View
-            style={{
-              ...styles.inputContainer,
-              ...{
-                marginBottom: 25,
-              },
-            }}
+            style={
+              !data.isValidRePassword && messageRePasswordError !== ''
+                ? {
+                    ...styles.inputContainer,
+                    ...{
+                      borderBottomColor: Colors.RED,
+                    },
+                  }
+                : {
+                    ...styles.inputContainer,
+                    ...{
+                      marginBottom: 25,
+                    },
+                  }
+            }
           >
             <Feather name="lock" size={16} color="black" />
             <TextInput
@@ -136,15 +380,34 @@ const SignUp = ({ navigation }) => {
               placeholder="Confirm Your Password"
               placeholderTextColor={Colors.GRAY}
               secureTextEntry={true}
+              onChangeText={(text) => handleOnChangeRePassword(text)}
+              onBlur={handleOnblurRePassword}
             />
           </View>
+          {!data.isValidRePassword && messageRePasswordError !== '' ? (
+            <Text
+              style={{
+                marginTop: 10,
+                fontFamily: Fonts.REGULAR,
+                color: Colors.LIGHT_RED,
+                marginBottom: 25,
+              }}
+            >
+              {messageRePasswordError}
+            </Text>
+          ) : null}
         </View>
 
         <Animatable.View animation="fadeInUp">
           <TouchableOpacity
             style={{ ...styles.button, marginBottom: 23 }}
             onPress={() => {
-              authContext.signUp();
+              signUpHanle(
+                data.username,
+                data.email,
+                data.password,
+                data.repassword
+              );
             }}
           >
             <Text style={{ fontFamily: Fonts.REGULAR, fontSize: 16 }}>
@@ -251,6 +514,7 @@ const styles = StyleSheet.create({
   },
   input: {
     marginLeft: 10,
+    width: width,
   },
   button: {
     backgroundColor: Colors.LIGHT_BLACK,

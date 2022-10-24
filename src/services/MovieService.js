@@ -22,7 +22,7 @@ const TMDB_HTTP_REQUEST = axios.create({
   },
 });
 
-// const URL_API = 'http://192.168.249.6:3001';
+// const URL_API = 'http://192.168.0.101:3001';
 const URL_API = 'https://the-movie-node.onrender.com';
 
 // const getTrending = () =>
@@ -31,6 +31,15 @@ const URL_API = 'https://the-movie-node.onrender.com';
 //       Math.random() * 1000
 //     )}`
 //   );
+
+const signIn = async (params) =>
+  await axios.post(`${URL_API}/auth/signin?api=hieu987`, params);
+
+const getUserToken = async (params) =>
+  await axios.post(`${URL_API}/auth/getusertoken?api=hieu987`, params);
+
+const signUp = async (params) =>
+  await axios.post(`${URL_API}/auth/signup?api=hieu987`, params);
 
 const getTrending = async (page) =>
   await axios.get(`${URL_API}/trending/all?api=hieu987&page=${page}`);
@@ -50,14 +59,26 @@ const getMoviesTopSearch = async (page) =>
 //     `https://api.themoviedb.org/3/list/8215569?api_key=fe1b70d9265fdb22caa86dca918116eb`
 //   );
 
-const getList = async () =>
-  await axios.get(`${URL_API}/list/8215569?api=hieu987`);
+const getList = async (userId) =>
+  userId
+    ? await axios.get(`${URL_API}/list/${userId}?api=hieu987`)
+    : await axios.get(`${URL_API}/list/8215569?api=hieu987`);
 
-const addItemList = async (params) =>
-  await axios.post(`${URL_API}/list/8215569/add_item?api=hieu987`, params);
+const addItemList = async (userId, params) =>
+  userId
+    ? await axios.post(`${URL_API}/list/${userId}/add_item?api=hieu987`, params)
+    : await axios.post(`${URL_API}/list/8215569/add_item?api=hieu987`, params);
 
-const removeItemList = async (params) =>
-  await axios.post(`${URL_API}/list/8215569/remove_item?api=hieu987`, params);
+const removeItemList = async (userId, params) =>
+  userId
+    ? await axios.post(
+        `${URL_API}/list/${userId}/remove_item?api=hieu987`,
+        params
+      )
+    : await axios.post(
+        `${URL_API}/list/8215569/remove_item?api=hieu987`,
+        params
+      );
 
 const getWatchList = async () =>
   await axios.get(
@@ -134,6 +155,8 @@ const getMoviesByGenres = async (genres_name, page) => {
     ? `${genresName.id},${genresName.name}`
     : `${genresName.id},${genresName.name.replace('&', '%26')}`;
 
+  // console.log('Movie: ', genreStr);
+
   return await axios.get(
     !genres_name.includes('&')
       ? `${URL_API}/discover/movie?api=hieu987&with_genres=${genreStr}&page=${page}`
@@ -148,6 +171,8 @@ const getTVByGenres = async (genres_name, page) => {
     ? `${genresName.id},${genresName.name}`
     : `${genresName.id},${genresName.name.replace('&', '%26')}`;
 
+  // console.log('TV: ', genreStr);
+
   return await axios.get(
     !genres_name.includes('&')
       ? `${URL_API}/discover/tv?api=hieu987&with_genres=${genreStr}&page=${page}`
@@ -156,7 +181,7 @@ const getTVByGenres = async (genres_name, page) => {
 };
 
 const getMoviesByYear = async (year, page) =>
-  year !== 'Trước năm 2000'
+  year != 'Trước năm 2000'
     ? await axios.get(
         `${URL_API}/discover/movie?api=hieu987&primary_release_date_gte=${year}-01-01&primary_release_date_lte=${year}-12-30&page=${page}`
       )
@@ -165,7 +190,7 @@ const getMoviesByYear = async (year, page) =>
       );
 
 const getTVByYear = async (year, page) =>
-  year !== 'Trước năm 2000'
+  year != 'Trước năm 2000'
     ? await axios.get(
         `${URL_API}/discover/tv?api=hieu987&primary_release_date_gte=${year}-01-01&primary_release_date_lte=${year}-12-30&page=${page}`
       )
@@ -279,6 +304,12 @@ const getPoster = (path) => {
 
 const getPosterCast = (path) => `${TMDB_IMAGE_BASE_URL}/original${path}`;
 
+const getAvatar = (path) => {
+  return path === null || path === undefined
+    ? ''
+    : `${URL_API}/image/account/${path}?api=hieu987`;
+};
+
 const getVideo = (key) => `${YOUTUBE_BASE_URL}?v=${key}`;
 
 // const getIdGenresByName = (genres_name) =>
@@ -386,4 +417,8 @@ export {
   getAllNational,
   getMovieByCountry,
   getTVByCountry,
+  signIn,
+  getUserToken,
+  signUp,
+  getAvatar,
 };

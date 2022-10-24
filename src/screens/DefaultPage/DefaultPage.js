@@ -52,13 +52,21 @@ const DefaultPage = ({ route, navigation }) => {
   const [dataTV, setDataTV] = useState([]);
   const [loading, setLoading] = useState(false);
   var [page, setPage] = useState(1);
+  var [pageTV, setPageTV] = useState(1);
   const [isTVSelected, setIsTVSelected] = useState(false);
+  const [loadingData, setLoadingData] = useState(false);
 
   useEffect(() => {
+    // if (!isTVSelected) {
+    //   setPage(1);
+    // } else {
+    //   setPageTV(1);
+    // }
+    setLoadingData(false);
     getData();
   }, [isTVSelected]);
 
-  const getData = async () => {
+  const getData = () => {
     switch (route.params.currentMovies) {
       case 'nowplaying':
       case 'upcoming':
@@ -68,92 +76,110 @@ const DefaultPage = ({ route, navigation }) => {
           .then((movieRespone) => {
             setData(data.concat(movieRespone.data.results));
             setLoading(false);
+            setLoadingData(true);
           })
           .catch((e) => {
             if (axios.isCancel(e)) return;
           });
         break;
       case 'genres':
-        getMoviesByGenres(route.params.title, page)
-          .then((movieRespone) => {
-            setData(data.concat(movieRespone.data.results));
-            setLoading(false);
-          })
-          .catch((e) => {
-            if (axios.isCancel(e)) return;
-          });
-        getTVByGenres(route.params.title, page)
-          .then((movieRespone) => {
-            setDataTV(dataTV.concat(movieRespone.data.results));
-            setLoading(false);
-          })
-          .catch((e) => {
-            if (axios.isCancel(e)) return;
-          });
+        if (!isTVSelected)
+          getMoviesByGenres(route.params.title, page)
+            .then((movieRespone) => {
+              setData(data.concat(movieRespone.data.results));
+              setLoading(false);
+              setLoadingData(true);
+            })
+            .catch((e) => {
+              if (axios.isCancel(e)) return;
+            });
+        else
+          getTVByGenres(route.params.title, pageTV)
+            .then((movieRespone) => {
+              setDataTV(dataTV.concat(movieRespone.data.results));
+              setLoading(false);
+              setLoadingData(true);
+            })
+            .catch((e) => {
+              if (axios.isCancel(e)) return;
+            });
       case 'year':
-        getMoviesByYear(route.params.title, page)
-          .then((movieRespone) => {
-            setData(data.concat(movieRespone.data.results));
-            setLoading(false);
-          })
-          .catch((e) => {
-            if (axios.isCancel(e)) return;
-          });
-        getTVByYear(route.params.title, page)
-          .then((movieRespone) => {
-            setDataTV(dataTV.concat(movieRespone.data.results));
-            setLoading(false);
-          })
-          .catch((e) => {
-            if (axios.isCancel(e)) return;
-          });
+        if (!isTVSelected)
+          getMoviesByYear(route.params.title, page)
+            .then((movieRespone) => {
+              setData(data.concat(movieRespone.data.results));
+              setLoading(false);
+              setLoadingData(true);
+            })
+            .catch((e) => {
+              if (axios.isCancel(e)) return;
+            });
+        else
+          getTVByYear(route.params.title, pageTV)
+            .then((movieRespone) => {
+              setDataTV(dataTV.concat(movieRespone.data.results));
+              setLoading(false);
+              setLoadingData(true);
+            })
+            .catch((e) => {
+              if (axios.isCancel(e)) return;
+            });
       case 'country':
-        getMovieByCountry(route.params.title, page)
-          .then((movieRespone) => {
-            setData(data.concat(movieRespone.data.results));
-            setLoading(false);
-          })
-          .catch((e) => {
-            if (axios.isCancel(e)) return;
-          });
-        getTVByCountry(route.params.title, page)
-          .then((movieRespone) => {
-            setDataTV(dataTV.concat(movieRespone.data.results));
-            setLoading(false);
-          })
-          .catch((e) => {
-            if (axios.isCancel(e)) return;
-          });
+        if (!isTVSelected)
+          getMovieByCountry(route.params.title, page)
+            .then((movieRespone) => {
+              setData(data.concat(movieRespone.data.results));
+              setLoading(false);
+              setLoadingData(true);
+            })
+            .catch((e) => {
+              if (axios.isCancel(e)) return;
+            });
+        else
+          getTVByCountry(route.params.title, pageTV)
+            .then((movieRespone) => {
+              setDataTV(dataTV.concat(movieRespone.data.results));
+              setLoading(false);
+              setLoadingData(true);
+            })
+            .catch((e) => {
+              if (axios.isCancel(e)) return;
+            });
       case 'search':
-        getDaTaSearchMovie(route.params.title, page)
-          .then((movieRespone) => {
-            setData(data.concat(movieRespone.data.results));
-            setLoading(false);
-          })
-          .catch((e) => {
-            if (axios.isCancel(e)) return;
-          });
-
-        getDaTaSearchTV(route.params.title, page)
-          .then((movieRespone) => {
-            setDataTV(dataTV.concat(movieRespone.data.results));
-            setLoading(false);
-          })
-          .catch((e) => {
-            if (axios.isCancel(e)) return;
-          });
+        if (!isTVSelected)
+          getDaTaSearchMovie(route.params.title, page)
+            .then((movieRespone) => {
+              setData(data.concat(movieRespone.data.results));
+              setLoading(false);
+              setLoadingData(true);
+            })
+            .catch((e) => {
+              if (axios.isCancel(e)) return;
+            });
+        else
+          getDaTaSearchTV(route.params.title, pageTV)
+            .then((movieRespone) => {
+              setDataTV(dataTV.concat(movieRespone.data.results));
+              setLoading(false);
+              setLoadingData(true);
+            })
+            .catch((e) => {
+              if (axios.isCancel(e)) return;
+            });
       default:
         break;
     }
+
     switch (route.params.currentTV) {
       case 'airingtoday':
       case 'ontheair':
       case 'popular':
       case 'toprated':
-        getDaTaTV(route.params.currentTV, page)
+        getDaTaTV(route.params.currentTV, pageTV)
           .then((movieRespone) => {
             setDataTV(dataTV.concat(movieRespone.data.results));
             setLoading(false);
+            setLoadingData(true);
           })
           .catch((e) => {
             if (axios.isCancel(e)) return;
@@ -165,12 +191,17 @@ const DefaultPage = ({ route, navigation }) => {
   };
 
   const handleEndReached = () => {
-    setPage(++page);
+    if (!isTVSelected) {
+      setPage(++page);
+    } else {
+      setPageTV(++pageTV);
+    }
     if (!loading) {
       setLoading(true);
     }
     getData();
   };
+
   const renderFooter = () => {
     return (
       <View
@@ -217,36 +248,54 @@ const DefaultPage = ({ route, navigation }) => {
           </Text>
         </TouchableOpacity>
       </View>
-      <View style={styles.listMovie}>
-        <FlatList
-          spacing={10}
-          data={!isTVSelected ? data : dataTV}
-          numColumns={3}
-          onEndReached={handleEndReached}
-          onEndReachedThreshold={0.5}
-          ListFooterComponent={loading ? renderFooter : null}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => (
-            <MovieCard
-              item={item}
-              id={item.id}
-              title={item.title}
-              language={item.original_language}
-              voteAverage={item.vote_average}
-              voteCount={item.vote_count}
-              poster={item.poster_path}
-              heartLess={true}
-              size={0.5}
-              handleOnPress={() =>
-                navigation.navigate('movie', {
-                  movieId: item.id,
-                  item: item,
-                })
-              }
-            />
-          )}
-        />
-      </View>
+
+      {loadingData ? (
+        <View style={styles.listMovie}>
+          <FlatList
+            spacing={10}
+            data={!isTVSelected ? data : dataTV}
+            numColumns={3}
+            onEndReached={handleEndReached}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={loading ? renderFooter : null}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item }) => (
+              <MovieCard
+                item={item}
+                id={item.id}
+                title={item.title}
+                language={item.original_language}
+                voteAverage={item.vote_average}
+                voteCount={item.vote_count}
+                poster={item.poster_path}
+                heartLess={true}
+                size={0.5}
+                handleOnPress={() =>
+                  navigation.navigate('movie', {
+                    movieId: item.id,
+                    item: item,
+                  })
+                }
+              />
+            )}
+          />
+        </View>
+      ) : (
+        <View
+          style={{
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: Colors.BLACK,
+          }}
+        >
+          <ActivityIndicator
+            size="large"
+            color={Colors.RED}
+            style={{ transform: [{ scale: 1.5 }] }}
+          />
+        </View>
+      )}
     </SafeAreaView>
   );
 };

@@ -22,12 +22,15 @@ import Colors from './src/constants/Colors';
 import VideoPlayer from './src/screens/VideoPlayer';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Font from 'expo-font';
-import { AuthContext, AuthProvider } from './src/store/AuthProvider';
+import { AuthContext } from './src/store/AuthProvider';
 import RootStackScreen from './src/screens/RootScreen';
 import DrawerNavigator from './src/screens/DrawerNavigator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Lottie from 'lottie-react-native';
 import Animated from 'react-native-reanimated';
+import md5 from 'md5';
+import { getUserToken, signIn, signUp } from './src/services/MovieService';
+import { Alert } from 'react-native';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -112,8 +115,12 @@ const App = () => {
   const initialLoginState = {
     isLoading: true,
     userName: null,
-    userToken: 1,
+    userToken: AsyncStorage.getItem('userToken'),
   };
+
+  const [user, setUser] = useState();
+  const [messageEmailError, setMessageEmailError] = useState('');
+  const [messagePasswordError, setMessagePasswordError] = useState('');
 
   const loginReducer = (prevState, action) => {
     switch (action.type) {
@@ -150,33 +157,94 @@ const App = () => {
   const [loginState, dispatch] = useReducer(loginReducer, initialLoginState);
 
   const authContext = useMemo(() => ({
-    signIn: async (userName, password) => {
+    signIn: (userName, password) => {
       // setUserToken('123');
       let userToken;
       userToken = null;
 
-      if (userName == 'vaicut6941@gmail.com' && password == 'Pass') {
-        try {
-          userToken = '123';
-          await AsyncStorage.setItem('userToken', userToken);
-        } catch (e) {
-          console.log(e);
-        }
-      }
-      dispatch({ type: 'LOGIN', id: userName, token: userToken });
+      // if (userName == 'vaicut6941@gmail.com' && password == 'Pass') {
+      //   try {
+      //     userToken = '123';
+      //     await AsyncStorage.setItem('userToken', userToken);
+      //   } catch (e) {
+      //     console.log(e);
+      //   }
+      // }
+
+      signIn({
+        email: userName,
+        password: md5(password),
+        user_token: token(),
+      })
+        .then((response) => {
+          if (response.data?.success === false) {
+            setMessageEmailError('* Email is not exist');
+          } else {
+            if (response.data.isLogin === true) {
+              setUser(response?.data.result);
+              AsyncStorage.setItem(
+                'userToken',
+                response?.data.result.user_token
+              );
+              AsyncStorage.setItem('isLoggedIn', 'true');
+              setMessagePasswordError('');
+            } else {
+              setMessagePasswordError('* Wrong password');
+            }
+          }
+        })
+        .catch((e) => {
+          if (axios.isCancel(e)) return;
+        });
     },
     signOut: async () => {
       try {
+        setUser();
         await AsyncStorage.removeItem('userToken');
+        await AsyncStorage.removeItem('isLoggedIn');
       } catch (e) {
         console.log(e);
       }
-      dispatch({ type: 'LOGOUT' });
+      // dispatch({ type: 'LOGOUT' });
     },
-    signUp: () => {
-      // setUserToken('123');
+    signUp: (username, email, password, repassword) => {
+      console.log(username, email, password, repassword);
+      signUp({
+        id: Date.now(),
+        user_name: username,
+        email: email,
+        password: md5(repassword),
+        created_by: username,
+        avatar: `${Math.floor(Math.random() * 10) + 1}`,
+        user_token: token(),
+      })
+        .then((response) => {
+          if (response.data.isSignUp === true) {
+            setMessageEmailError('');
+            // setToastMessage({
+            //   title: 'Thành công!',
+            //   message: 'Bạn đã đăng ký thành công tài khoản tại PhimHay247.',
+            //   type: 'success',
+            //   duration: 7000,
+            // });
+            Alert.alert(`Notification`, `Sign Up Successfully`);
+          } else {
+            setMessageEmailError('* Email is already exist');
+          }
+        })
+        .catch((e) => {
+          if (axios.isCancel(e)) return;
+        });
     },
   }));
+
+  const rand = function () {
+    return Math.random().toString(36).substring(2); // remove `0.`
+  };
+
+  const token = function () {
+    return rand() + rand() + rand() + rand(); // to make it longer
+  };
 
   useEffect(() => {
     LogBox.ignoreLogs([
@@ -186,6 +254,20 @@ const App = () => {
   }, []);
 
   const scrolly = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    (async () => {
+      const loggedIn = await AsyncStorage.getItem('isLoggedIn');
+      const userToken = await AsyncStorage.getItem('userToken');
+      if (userToken !== null && loggedIn === 'true') {
+        getUserToken({ user_token: userToken }).then((accountResponse) => {
+          if (accountResponse.data.isLogin === true) {
+            setUser(accountResponse.data.result);
+          }
+        });
+      }
+    })();
+  }, []);
 
   if (!appIsReady) {
     SplashScreen.hideAsync();
@@ -199,11 +281,20 @@ const App = () => {
       </View>
     );
   }
-
   return appIsReady ? (
-    <AuthContext.Provider value={{ scrolly, authContext }}>
+    <AuthContext.Provider
+      value={{
+        scrolly,
+        authContext,
+        messageEmailError,
+        setMessageEmailError,
+        messagePasswordError,
+        setMessagePasswordError,
+        user,
+      }}
+    >
       <NavigationContainer onReady={onLayoutRootView}>
-        {loginState.userToken !== null ? (
+        {user?.user_token != undefined ? (
           <Stack.Navigator
 
           // screenOptions={{

@@ -44,8 +44,11 @@ const Search = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [loadingSearchBar, setLoadingSearchBar] = useState(false);
   const [loadingTopSearch, setLoadingTopSearch] = useState(false);
+  const [loadingDataTopSearch, setLoadingDataTopSearch] = useState(false);
+  const [loadingDataSearch, setLoadingDataSearch] = useState(false);
 
   useEffect(() => {
+    // setTimeout(() => setLoadingData(true), 4000);
     getDataTopSearch();
     // focusListener = navigation.addListener('focus', () => {});
     // focusListener = navigation.addListener('blur', () => {});
@@ -70,6 +73,7 @@ const Search = ({ navigation }) => {
 
       getMoviesSearch(input, 1).then((searchMovieResponse) => {
         setData(searchMovieResponse.data.results);
+        setLoadingDataSearch(true);
       });
       setLoadingSearchBar(true);
       setLoading(false);
@@ -120,6 +124,7 @@ const Search = ({ navigation }) => {
         setDataTopSearch(dataTopSearch.concat(movieRespone.data.results));
         // setDataTopSearch(dataTopSearch.concat(movieRespone.data.results));
         setLoading(false);
+        setLoadingDataTopSearch(true);
       })
       .catch((e) => {
         if (axios.isCancel(e)) return;
@@ -204,32 +209,47 @@ const Search = ({ navigation }) => {
         </View>
 
         {isFocused ? (
-          <View style={{ paddingBottom: 150 }}>
-            <Text style={styles.headerTopSearch}>The most popular search</Text>
-            <FlatList
-              style={{ marginBottom: 55 }}
-              data={dataTopSearch}
-              showsHorizontalScrollIndicator={false}
-              onEndReached={handleEndReachedTopSearch}
-              onEndReachedThreshold={0.5}
-              ListFooterComponent={loadingTopSearch ? renderFooter : null}
-              keyExtractor={(item, index) => index.toString()}
-              ItemSeparatorComponent={() => <ItemSeparator width={15} />}
-              ListHeaderComponent={() => <ItemSeparator width={10} />}
-              renderItem={({ item }) => (
-                <ItemTopSearch
-                  item={item}
-                  handleOnPress={() =>
-                    navigation.navigate('movie', {
-                      movieId: item.id,
-                      item: item,
-                    })
-                  }
-                />
-              )}
-            />
-          </View>
-        ) : (
+          loadingDataTopSearch ? (
+            <View style={{ paddingBottom: 150 }}>
+              <Text style={styles.headerTopSearch}>
+                The most popular search
+              </Text>
+              <FlatList
+                style={{ marginBottom: 55 }}
+                data={dataTopSearch}
+                showsHorizontalScrollIndicator={false}
+                onEndReached={handleEndReachedTopSearch}
+                onEndReachedThreshold={0.5}
+                ListFooterComponent={loadingTopSearch ? renderFooter : null}
+                keyExtractor={(item, index) => index.toString()}
+                ItemSeparatorComponent={() => <ItemSeparator width={15} />}
+                ListHeaderComponent={() => <ItemSeparator width={10} />}
+                renderItem={({ item }) => (
+                  <ItemTopSearch
+                    item={item}
+                    handleOnPress={() =>
+                      navigation.navigate('movie', {
+                        movieId: item.id,
+                        item: item,
+                      })
+                    }
+                  />
+                )}
+              />
+            </View>
+          ) : (
+            <View
+              style={{
+                flex: 1,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: Colors.BLACK,
+              }}
+            >
+              <ActivityIndicator size="large" color={Colors.RED} />
+            </View>
+          )
+        ) : loadingDataSearch ? (
           <FlatList
             data={data}
             showsHorizontalScrollIndicator={false}
@@ -251,6 +271,17 @@ const Search = ({ navigation }) => {
               />
             )}
           />
+        ) : (
+          <View
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: Colors.BLACK,
+            }}
+          >
+            <ActivityIndicator size="large" color={Colors.RED} />
+          </View>
         )}
       </SafeAreaView>
     </TouchableNativeFeedback>

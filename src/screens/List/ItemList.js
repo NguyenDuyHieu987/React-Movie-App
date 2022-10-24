@@ -23,6 +23,7 @@ import {
 } from '../../services/MovieService';
 import axios from 'axios';
 import { addContext } from '../HomeScreen/HomeScreen';
+import { AuthContext } from '../../store/AuthProvider';
 
 const { height, width } = Dimensions.get('window');
 
@@ -31,6 +32,7 @@ const ItemList = ({ id, title, poster, handleOnPress }) => {
   const [voteCountValue, setVoteCountValue] = useState({});
   const [removeItem, setRemoveItem] = useState(true);
   const [isEpisodes, setIsEpisodes] = useState(false);
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     getMovieSeriesById(id)
@@ -82,7 +84,7 @@ const ItemList = ({ id, title, poster, handleOnPress }) => {
                 //       media_id: id,
                 //     }
                 //   )
-                addItemList({
+                addItemList(user?.id, {
                   media_type: isEpisodes ? 'tv' : 'movie',
                   media_id: +id,
                 });
@@ -94,7 +96,7 @@ const ItemList = ({ id, title, poster, handleOnPress }) => {
                 //       media_id: id,
                 //     }
                 //   );
-                removeItemList({
+                removeItemList(user?.id, {
                   media_id: +id,
                 });
                 setRemove(true);

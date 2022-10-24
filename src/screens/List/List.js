@@ -6,18 +6,20 @@ import {
   FlatList,
   ActivityIndicator,
 } from 'react-native';
-import React, { Component, useEffect, useState } from 'react';
+import React, { Component, useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import ItemList from './ItemList';
 import { getList } from '../../services/MovieService';
 import Colors from '../../constants/Colors';
 import Fonts from '../../constants/Fonts';
+import { AuthContext } from '../../store/AuthProvider';
 
 const List = ({ navigation }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [isfocus, setIsFocus] = useState(true);
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     focusListener = navigation.addListener('focus', () => {
@@ -31,11 +33,16 @@ const List = ({ navigation }) => {
     });
   }, []);
 
-  const getData = async () => {
-    await getList(page).then((movieRespone) => {
-      setData(data.concat(movieRespone.data.items));
-      setLoading(false);
-    });
+  const getData = () => {
+    getList(user?.id)
+      .then((movieRespone) => {
+        // setData(data.concat(movieRespone?.data?.items));
+        setData(movieRespone?.data?.items);
+        setLoading(false);
+      })
+      .catch((e) => {
+        if (axios.isCancel(e)) return;
+      });
   };
 
   const handleEndReached = () => {

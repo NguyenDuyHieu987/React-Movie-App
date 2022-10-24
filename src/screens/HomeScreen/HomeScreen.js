@@ -24,6 +24,7 @@ import React, {
   useCallback,
   useRef,
   useContext,
+  useLayoutEffect,
 } from 'react';
 import Colors from '../../constants/Colors';
 import GenreCard from '../../components/GenreCard';
@@ -72,10 +73,12 @@ import Header from './Header';
 import Animated, { Easing } from 'react-native-reanimated';
 import { AuthContext } from '../../store/AuthProvider';
 import ListMovieHorizontal from '../../components/ListMovieHorizontal/ListMovieHorizontal';
-const { height, width } = Dimensions.get('window');
-export const addContext = createContext();
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 
-const HomeScreen = ({ navigation }) => {
+const { height, width } = Dimensions.get('window');
+
+const HomeScreen = ({ navigation, route }) => {
   const [dataTrendingMoives, setDataTrendingMoives] = useState({});
   const [dataNowPlayingMovies, setDataNowPlayingMovies] = useState([]);
   const [dataUpcomingMovies, setDataUpcomingMovies] = useState([]);
@@ -102,9 +105,21 @@ const HomeScreen = ({ navigation }) => {
   const [isVisibleYears, setIsVisibleYears] = useState(false);
   const [chooseGenre, setChooseGenre] = useState('All');
   const [isEpisodes, setIsEpisodes] = useState(false);
-  const { scrolly } = useContext(AuthContext);
+  const [numberMovieTrending, setNumberMovieTrending] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  const { user } = useContext(AuthContext);
+
+  useLayoutEffect(() => {
+    const routeName = getFocusedRouteNameFromRoute(route);
+    if (routeName === 'home') {
+      navigation.setOptions({ tabBarVisible: false });
+    }
+  }, []);
 
   useEffect(() => {
+    navigation.setOptions({ tabBarVisible: false });
+    // setTimeout(() => setLoading(true), 2000);
     getData();
   }, []);
 
@@ -121,9 +136,34 @@ const HomeScreen = ({ navigation }) => {
   );
   // const intervalId = useRef(1);
 
-  let intervalId = useRef(1).current;
+  const GetDataTrending = async () => {
+    // console.log(await AsyncStorage.getItem('userToken'));
+    getTrending(1).then((movieRespone) => {
+      setDataTrendingMoives(
+        movieRespone?.data?.results[Math.floor(Math.random() * 20)]
+        // movieRespone?.data?.results[numberMovieTrending]
+      )?.catch((e) => {
+        if (axios.isCancel(e)) return;
+      });
+      // setCheckIsInList('add');
+    });
+  };
+
+  // useEffect(() => {
+  //   GetDataTrending();
+  // }, [numberMovieTrending]);
+
+  let intervalId = useRef().current;
+
   useEffect(() => {
+    GetDataTrending();
+
     intervalId = setInterval(GetDataTrending.bind(dataTrendingMoives), 15000);
+
+    // intervalId = setInterval(() => {
+    //   GetDataTrending();
+    // }, 15000);
+
     return () => clearInterval(intervalId);
   }, []);
 
@@ -148,21 +188,10 @@ const HomeScreen = ({ navigation }) => {
         });
     }
 
-    getList().then((movieRespone) => {
+    getList(user?.id).then((movieRespone) => {
       setDataList(movieRespone.data.items);
     });
   }, [dataTrendingMoives?.id]);
-
-  const GetDataTrending = () => {
-    getTrending(1).then((movieRespone) => {
-      setDataTrendingMoives(
-        movieRespone?.data?.results[Math.floor(Math.random() * 20)]
-      )?.catch((e) => {
-        if (axios.isCancel(e)) return;
-      });
-      setCheckIsInList('add');
-    });
-  };
 
   useEffect(() => {
     dataList.map((item) => {
@@ -190,6 +219,7 @@ const HomeScreen = ({ navigation }) => {
         // setDataGenres(res[4].data);
         // setDataYears(res[5].data);
         // setDataCountries(res[6].data);
+        setLoading(true);
       })
       .catch((e) => {
         if (axios.isCancel(e)) return;
@@ -352,31 +382,32 @@ const HomeScreen = ({ navigation }) => {
     setIsVisibleYears(bool);
   }, []);
 
-  // const scrolly = useRef(new Animated.Value(0)).current;
+  const scrolly = useRef(new Animated.Value(0)).current;
 
-  // const diffClamp = useRef(Animated.diffClamp(scrolly, 0, 90)).current;
+  const diffClamp = useRef(Animated.diffClamp(scrolly, 0, 90)).current;
 
-  // const header_translateY = Animated.interpolateNode(diffClamp, {
-  //   inputRange: [0, 90],
-  //   outputRange: [0, -90],
-  //   extrapolate: 'clamp',
-  // });
+  const header_translateY = Animated.interpolateNode(diffClamp, {
+    inputRange: [0, 90],
+    outputRange: [0, -90],
+    extrapolate: 'clamp',
+  });
 
-  // const header_opacity = Animated.interpolateNode(diffClamp, {
-  //   inputRange: [0, 90],
-  //   outputRange: [1, 0.2],
-  //   extrapolate: 'clamp',
-  // });
+  const header_opacity = Animated.interpolateNode(diffClamp, {
+    inputRange: [0, 90],
+    outputRange: [1, 0.2],
+    extrapolate: 'clamp',
+  });
 
-  // const header_color = Animated.interpolateColors(diffClamp, {
-  //   inputRange: [0, 1],
-  //   outputColorRange: ['red', 'black'],
-  // });
+  const header_color = Animated.interpolateColors(diffClamp, {
+    inputRange: [0, 1],
+    outputColorRange: ['red', 'black'],
+  });
 
-  return dataTrendingMoives &&
-    dataUpcomingMovies != [] &&
-    dataPopularMovies != [] &&
-    dataTopRatedMovies != [] ? (
+  return loading ? (
+    // dataTrendingMoives &&
+    //   dataUpcomingMovies != [] &&
+    //   dataPopularMovies != [] &&
+    //   dataTopRatedMovies != [] ?
     <ScrollView style={styles.container}>
       <StatusBar
         style="auto"
@@ -384,7 +415,7 @@ const HomeScreen = ({ navigation }) => {
         backgroundColor="transparent"
       />
 
-      {/* <Animated.View
+      <Animated.View
         style={{
           transform: [{ translateY: header_translateY }],
           zIndex: 10,
@@ -394,17 +425,17 @@ const HomeScreen = ({ navigation }) => {
       >
         <Header
           navigation={navigation}
-          dataGenres={dataGenres}
-          activeGenre={activeGenre}
-          dataYears={dataYears}
-          dataCountries={dataCountries}
-          chooseGenre={chooseGenre}
-          isVisibleYears={isVisibleYears}
-          changeYearsVisbility={changeYearsVisbility}
-          isVisibleGenres={isVisibleGenres}
-          changeGenresVisbility={changeGenresVisbility}
+          // dataGenres={dataGenres}
+          // activeGenre={activeGenre}
+          // dataYears={dataYears}
+          // dataCountries={dataCountries}
+          // chooseGenre={chooseGenre}
+          // isVisibleYears={isVisibleYears}
+          // changeYearsVisbility={changeYearsVisbility}
+          // isVisibleGenres={isVisibleGenres}
+          // changeGenresVisbility={changeGenresVisbility}
         />
-      </Animated.View> */}
+      </Animated.View>
 
       <Animated.ScrollView
         onScroll={Animated.event([
@@ -526,7 +557,7 @@ const HomeScreen = ({ navigation }) => {
                     //     media_id: dataTrendingMoives?.id,
                     //   }
                     // );
-                    addItemList({
+                    addItemList(user?.id, {
                       media_type: isEpisodes ? 'tv' : 'movie',
                       media_id: +dataTrendingMoives?.id,
                     });
@@ -538,7 +569,7 @@ const HomeScreen = ({ navigation }) => {
                     //     media_id: dataTrendingMoives?.id,
                     //   }
                     // );
-                    removeItemList({
+                    removeItemList(user?.id, {
                       media_id: +dataTrendingMoives?.id,
                     });
                     setCheckIsInList('add');
@@ -721,7 +752,20 @@ const HomeScreen = ({ navigation }) => {
       </Animated.ScrollView>
     </ScrollView>
   ) : (
-    <AppLoading />
+    <View
+      style={{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: Colors.BLACK,
+      }}
+    >
+      <ActivityIndicator
+        size="large"
+        color={Colors.RED}
+        style={{ transform: [{ scale: 1.5 }] }}
+      />
+    </View>
   );
 };
 

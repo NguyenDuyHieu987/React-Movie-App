@@ -84,7 +84,7 @@ const BottomTabNavigator = ({ navigation }) => {
         })}
         component={HomeScreen}
         options={{
-          headerShown: true,
+          headerShown: false,
           header: ({ navigation }) => (
             <Animated.View
               style={{

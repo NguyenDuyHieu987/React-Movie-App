@@ -32,11 +32,12 @@ const WellcomeScreen = ({ navigation }) => {
         <TouchableOpacity
           style={styles.btn}
           onPress={() => {
-            navigation.navigate('signup');
+            navigation.navigate('signin');
           }}
         >
-          <Text style={{ fontSize: 18 }}>Register</Text>
+          <Text style={{ fontSize: 18 }}>Sign In</Text>
         </TouchableOpacity>
+
         <Text
           style={{
             alignSelf: 'center',
@@ -50,10 +51,10 @@ const WellcomeScreen = ({ navigation }) => {
         <TouchableOpacity
           style={styles.btn}
           onPress={() => {
-            navigation.navigate('signin');
+            navigation.navigate('signup');
           }}
         >
-          <Text style={{ fontSize: 18 }}>Sign In</Text>
+          <Text style={{ fontSize: 18 }}>Register</Text>
         </TouchableOpacity>
       </View>
     </View>
