@@ -23,7 +23,9 @@ const TMDB_HTTP_REQUEST = axios.create({
 });
 
 // const URL_API = 'http://192.168.0.101:3001';
-const URL_API = 'https://the-movie-node.onrender.com';
+const URL_API = 'https://kind-pink-bluefish-cuff.cyclic.app';
+// const URL_API = 'https://the-movie-node.onrender.com';
+const URL_API_IMAGE = 'https://the-movie-node-image.onrender.com';
 
 // const getTrending = () =>
 //   axios.get(
@@ -299,7 +301,7 @@ const getAllNational = async () =>
 const getPoster = (path) => {
   return path === null || path === undefined
     ? null
-    : `${URL_API}/image${path}?api=hieu987`;
+    : `${URL_API_IMAGE}/image${path}?api=hieu987`;
 };
 
 const getPosterCast = (path) => `${TMDB_IMAGE_BASE_URL}/original${path}`;
@@ -307,7 +309,7 @@ const getPosterCast = (path) => `${TMDB_IMAGE_BASE_URL}/original${path}`;
 const getAvatar = (path) => {
   return path === null || path === undefined
     ? ''
-    : `${URL_API}/image/account/${path}?api=hieu987`;
+    : `${URL_API_IMAGE}/image/account/${path}?api=hieu987`;
 };
 
 const getVideo = (key) => `${YOUTUBE_BASE_URL}?v=${key}`;
