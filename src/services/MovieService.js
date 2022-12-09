@@ -23,8 +23,9 @@ const TMDB_HTTP_REQUEST = axios.create({
 });
 
 // const URL_API = 'http://192.168.0.101:3001';
-const URL_API = 'https://the-movie-node-content.onrender.com';
+// const URL_API = 'https://the-movie-node-content.onrender.com';
 // const URL_API = 'https://the-movie-node.onrender.com';
+const URL_API = 'https://quaint-goat-housecoat.cyclic.app';
 const URL_API_IMAGE = 'https://the-movie-node-image.onrender.com';
 
 // const getTrending = () =>
