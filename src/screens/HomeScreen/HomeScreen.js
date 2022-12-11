@@ -52,13 +52,6 @@ import {
   getAllNational,
   getMovieSeriesById,
 } from '../../services/MovieService';
-import {
-  nowPlayingRespone,
-  upComingRespone,
-  popularRespone,
-  topRatedRespone,
-  genreResponse,
-} from '../../JsonServer';
 import { LinearGradient } from 'expo-linear-gradient';
 import AppLoading from 'expo-app-loading';
 import Slideshow from 'react-native-image-slider-show';
@@ -70,7 +63,7 @@ import Constants from 'expo-constants';
 import ListsMovies from './ListsMovies';
 import { useFocusEffect } from '@react-navigation/native';
 import Header from './Header';
-import Animated, { Easing } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import { AuthContext } from '../../store/AuthProvider';
 import ListMovieHorizontal from '../../components/ListMovieHorizontal/ListMovieHorizontal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -408,7 +401,7 @@ const HomeScreen = ({ navigation, route }) => {
     //   dataUpcomingMovies != [] &&
     //   dataPopularMovies != [] &&
     //   dataTopRatedMovies != [] ?
-    <ScrollView style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <StatusBar
         style="auto"
         translucent={true}
@@ -750,7 +743,7 @@ const HomeScreen = ({ navigation, route }) => {
           navigation={navigation}
         />
       </Animated.ScrollView>
-    </ScrollView>
+    </SafeAreaView>
   ) : (
     <View
       style={{

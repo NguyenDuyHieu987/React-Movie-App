@@ -71,7 +71,7 @@ const SignUp = ({ navigation }) => {
       data.isValidPassword &&
       data.isValidRePassword
     ) {
-      authContext.signUp(username, email, password, repassword);
+      authContext.signUp(username.trim(), email, password, repassword);
       setMessageUsernameError('');
       setMessageEmailError('');
       setMessagePasswordError('');

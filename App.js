@@ -31,6 +31,8 @@ import Animated from 'react-native-reanimated';
 import md5 from 'md5';
 import { getUserToken, signIn, signUp } from './src/services/MovieService';
 import { Alert } from 'react-native';
+import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
+import Fonts from './src/constants/Fonts';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -99,7 +101,7 @@ const App = () => {
         // Tell the application to render
         setTimeout(async () => {
           setAppIsReady(true);
-        }, 3000);
+        }, 3700);
       }
     }
 
@@ -208,7 +210,7 @@ const App = () => {
       // dispatch({ type: 'LOGOUT' });
     },
     signUp: (username, email, password, repassword) => {
-      console.log(username, email, password, repassword);
+      // console.log(username, email, password, repassword);
       signUp({
         id: Date.now(),
         user_name: username,
@@ -227,7 +229,13 @@ const App = () => {
             //   type: 'success',
             //   duration: 7000,
             // });
-            Alert.alert(`Notification`, `Sign Up Successfully`);
+            // Alert.alert(`Notification`, `Sign Up Successfully`);
+            Toast.show({
+              type: 'success',
+              text1: 'Success',
+              text2:
+                'You have successfully registered an account in Netflix 2.0',
+            });
           } else {
             setMessageEmailError('* Email is already exist');
           }
@@ -246,14 +254,14 @@ const App = () => {
     return rand() + rand() + rand() + rand(); // to make it longer
   };
 
+  const scrolly = useRef(new Animated.Value(0)).current;
+
   useEffect(() => {
     LogBox.ignoreLogs([
       'expo-app-loading is deprecated in favor of expo-splash-screen',
     ]);
     LogBox.ignoreLogs(['Require cycle:']);
   }, []);
-
-  const scrolly = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     (async () => {
@@ -272,9 +280,17 @@ const App = () => {
   if (!appIsReady) {
     SplashScreen.hideAsync();
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: Colors.BLACK,
+        }}
+      >
         <Lottie
-          source={require('./assets/animations/29313-netflix-logo-swoop.json')}
+          // source={require('./assets/animations/29313-netflix-logo-swoop.json')}
+          source={require('./assets/animations/50097-netflix-logo.json')}
           autoPlay
           loop
         />
@@ -282,108 +298,145 @@ const App = () => {
     );
   }
   return appIsReady ? (
-    <AuthContext.Provider
-      value={{
-        scrolly,
-        authContext,
-        messageEmailError,
-        setMessageEmailError,
-        messagePasswordError,
-        setMessagePasswordError,
-        user,
+    <>
+      <AuthContext.Provider
+        value={{
+          scrolly,
+          authContext,
+          messageEmailError,
+          setMessageEmailError,
+          messagePasswordError,
+          setMessagePasswordError,
+          user,
+        }}
+      >
+        <NavigationContainer onReady={onLayoutRootView}>
+          {user?.user_token != undefined ? (
+            <Stack.Navigator
+
+            // screenOptions={{
+            //   headerStyle: {
+            //     backgroundColor: Colors.YELLOW,
+            //   },
+            //   headerTintColor: Colors.WHITE,
+            //   headerTitleAlign: 'center',
+            //   cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+            // }}
+            >
+              {/* <Stack.Screen
+                    name="signin"
+                    component={SignIn}
+                    options={{
+                      headerShown: false,
+                    }}
+                  />
+                  <Stack.Screen
+                    name="signup"
+                    component={SignUp}
+                    options={{
+                      headerShown: false,
+                    }}
+                  /> */}
+
+              <Stack.Screen
+                name="home"
+                component={DrawerNavigator}
+                options={{
+                  headerShown: false,
+                }}
+              />
+
+              <Stack.Screen
+                name="movie"
+                component={MovieScreen}
+                options={{
+                  headerShown: false,
+                  cardStyleInterpolator:
+                    CardStyleInterpolators.forFadeFromCenter,
+                }}
+              />
+
+              <Stack.Screen
+                name="movieShow"
+                component={DefaultPage}
+                options={({ navigation, route }) => ({
+                  headerTitle: route.params.title,
+                  headerStyle: {
+                    backgroundColor: Colors.LIGHT_BLACK,
+                  },
+                  headerTintColor: Colors.WHITE,
+                  headerTitleAlign: 'center',
+                  cardStyleInterpolator:
+                    CardStyleInterpolators.forHorizontalIOS,
+                })}
+              />
+
+              <Stack.Screen
+                name="search"
+                component={DefaultPage}
+                options={({ navigation, route }) => ({
+                  headerTitle: 'Results for: ' + route.params.title,
+                  headerStyle: {
+                    backgroundColor: Colors.LIGHT_BLACK,
+                  },
+                  headerTintColor: Colors.WHITE,
+                  headerTitleAlign: 'left',
+                  cardStyleInterpolator:
+                    CardStyleInterpolators.forHorizontalIOS,
+                })}
+              />
+
+              <Stack.Screen
+                name="video"
+                component={VideoPlayer}
+                options={{
+                  headerShown: false,
+                  cardStyleInterpolator:
+                    CardStyleInterpolators.forHorizontalIOS,
+                }}
+              />
+            </Stack.Navigator>
+          ) : (
+            <RootStackScreen />
+          )}
+        </NavigationContainer>
+      </AuthContext.Provider>
+      <Toast
+        config={{
+          success: (props) => (
+            <BaseToast
+              {...props}
+              style={{ borderLeftColor: Colors.GREEN, height: 70 }}
+              contentContainerStyle={{
+                paddingHorizontal: 15,
+              }}
+              text1Style={{
+                fontSize: 16,
+                fontWeight: '400',
+                fontFamily: Fonts.SEMI_BOLD,
+              }}
+              text2Style={{
+                fontSize: 13,
+                fontWeight: '400',
+                fontFamily: Fonts.REGULAR,
+              }}
+            />
+          ),
+        }}
+      />
+    </>
+  ) : (
+    <View
+      style={{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: Colors.BLACK,
       }}
     >
-      <NavigationContainer onReady={onLayoutRootView}>
-        {user?.user_token != undefined ? (
-          <Stack.Navigator
-
-          // screenOptions={{
-          //   headerStyle: {
-          //     backgroundColor: Colors.YELLOW,
-          //   },
-          //   headerTintColor: Colors.WHITE,
-          //   headerTitleAlign: 'center',
-          //   cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          // }}
-          >
-            {/* <Stack.Screen
-                  name="signin"
-                  component={SignIn}
-                  options={{
-                    headerShown: false,
-                  }}
-                />
-                <Stack.Screen
-                  name="signup"
-                  component={SignUp}
-                  options={{
-                    headerShown: false,
-                  }}
-                /> */}
-
-            <Stack.Screen
-              name="home"
-              component={DrawerNavigator}
-              options={{
-                headerShown: false,
-              }}
-            />
-
-            <Stack.Screen
-              name="movie"
-              component={MovieScreen}
-              options={{
-                headerShown: false,
-                cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
-              }}
-            />
-
-            <Stack.Screen
-              name="movieShow"
-              component={DefaultPage}
-              options={({ navigation, route }) => ({
-                headerTitle: route.params.title,
-                headerStyle: {
-                  backgroundColor: Colors.LIGHT_BLACK,
-                },
-                headerTintColor: Colors.WHITE,
-                headerTitleAlign: 'center',
-                cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-              })}
-            />
-
-            <Stack.Screen
-              name="search"
-              component={DefaultPage}
-              options={({ navigation, route }) => ({
-                headerTitle: 'Results for: ' + route.params.title,
-                headerStyle: {
-                  backgroundColor: Colors.LIGHT_BLACK,
-                },
-                headerTintColor: Colors.WHITE,
-                headerTitleAlign: 'left',
-                cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-              })}
-            />
-
-            <Stack.Screen
-              name="video"
-              component={VideoPlayer}
-              options={{
-                headerShown: false,
-                cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-              }}
-            />
-          </Stack.Navigator>
-        ) : (
-          <RootStackScreen />
-        )}
-      </NavigationContainer>
-    </AuthContext.Provider>
-  ) : (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       <Lottie
-        source={require('./assets/animations/29313-netflix-logo-swoop.json')}
+        // source={require('./assets/animations/29313-netflix-logo-swoop.json')}
+        source={require('./assets/animations/50097-netflix-logo.json')}
         autoPlay
         loop
       />

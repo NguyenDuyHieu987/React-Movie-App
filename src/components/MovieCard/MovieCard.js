@@ -109,7 +109,7 @@ const MovieCard = ({
               fontSize: 14 * size,
             }}
           >
-            {voteAverage}
+            {voteAverage.toFixed(2)}
           </Text>
         </View>
         {heartLess === false ? (

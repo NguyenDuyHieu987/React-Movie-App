@@ -13,6 +13,7 @@ import { getMovieById, getMovieSeriesById } from '../../services/MovieService';
 import AppLoading from 'expo-app-loading';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import Colors from '../../constants/Colors';
+import Lottie from 'lottie-react-native';
 
 const VideoPlayer = ({ route, navigation }) => {
   const [data, setData] = useState({});
@@ -64,7 +65,12 @@ const VideoPlayer = ({ route, navigation }) => {
   };
 
   return loading ? (
-    <SafeAreaView>
+    <SafeAreaView
+      style={{
+        backgroundColor: Colors.BLACK,
+        flex: 1,
+      }}
+    >
       {/* <VideoPlayer
           video={{
             uri: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
@@ -90,16 +96,35 @@ const VideoPlayer = ({ route, navigation }) => {
     <View
       style={{
         flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
+        // alignItems: 'center',
+        // justifyContent: 'center',
         backgroundColor: Colors.BLACK,
       }}
     >
-      <ActivityIndicator
-        size="large"
-        color={Colors.RED}
-        style={{ transform: [{ scale: 1.5 }] }}
-      />
+      <View
+        style={{
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: Colors.BLACK,
+          height: 230,
+        }}
+      >
+        {/* <ActivityIndicator
+          size="large"
+          color={Colors.RED}
+          style={{ transform: [{ scale: 1.5 }] }}
+        /> */}
+        <Lottie
+          source={require('../../../assets/animations/38763-youtube-logo-effect.json')}
+          autoPlay
+          loop
+          style={{
+            // height: 100,
+            // width: 100,
+            transform: [{ scale: 0.6 }],
+          }}
+        />
+      </View>
     </View>
   );
 };

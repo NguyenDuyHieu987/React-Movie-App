@@ -34,6 +34,7 @@ const BottomTabNavigator = ({ navigation }) => {
     inputRange: [0, 1],
     outputColorRange: ['red', 'black'],
   });
+
   return (
     <BottomTab.Navigator
       screenOptions={({ route }) => ({
@@ -68,7 +69,7 @@ const BottomTabNavigator = ({ navigation }) => {
           {
             borderWidth: 0.5,
             paddingVertical: 5,
-            borderTopColor: Colors.GRAY,
+            borderTopColor: '#dfe4ea',
             backgroundColor: Colors.BLACK,
             height: 60,
           },

@@ -34,7 +34,7 @@ const Setting = ({ navigation }) => {
           source={
             user?.avatar?.length <= 3
               ? {
-                  uri: `https://the-movie-node.onrender.com/image/account/${user?.avatar}?api=hieu987`,
+                  uri: getAvatar(user?.avatar),
                 }
               : { uri: user?.avatar }
           }

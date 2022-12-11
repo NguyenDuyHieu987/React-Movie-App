@@ -37,13 +37,6 @@ import {
   getMoviesByGenresTopRated,
   getMoviesByYear,
 } from '../../services/MovieService';
-import {
-  nowPlayingRespone,
-  upComingRespone,
-  popularRespone,
-  topRatedRespone,
-  genreResponse,
-} from '../../JsonServer';
 import { LinearGradient } from 'expo-linear-gradient';
 import AppLoading from 'expo-app-loading';
 import Slideshow from 'react-native-image-slider-show';
